@@ -8,8 +8,9 @@
 FROM node:14 as BUILD_IMAGE
 
 # Install python runtime
-RUN apt update && \
-    apt install python3 make g++
+RUN apk update && \
+    apk add python3 make g++ && \
+    rm -rf /var/cache/apk/*
 
 # Create app directory
 WORKDIR /usr/src/app

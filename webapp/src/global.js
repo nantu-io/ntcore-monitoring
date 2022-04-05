@@ -7,8 +7,13 @@ const getAuthHeader = () => {
 }
 
 export function fetchDataV1(url) {
-  const headers = { headers: getAuthHeader() };
+  const headers = { headers: getAuthHeader()};
   return axios.get(url, headers)
+}
+
+export function fetchDataWithParamsV1(url, params) {
+  const headers = { headers: getAuthHeader()};
+  return axios.get(url, { headers, params });
 }
 
 export function postDataV1(url, content) {

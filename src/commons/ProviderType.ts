@@ -71,3 +71,17 @@ export const enum DatabaseType {
       */
      "postgres": DatabaseType.POSTGRES,
 }
+
+export const enum TimeSeriesDatabaseType {
+    /**
+     * Timescale
+     */
+    TIMESCALE = "TIMESCALE",
+}
+
+export const TimeSeriesDatabaseTypeMapping = {
+    /**
+     * Timescale
+     */
+    "timescale": TimeSeriesDatabaseType.TIMESCALE,
+}

@@ -1,4 +1,11 @@
-import { ProviderType, ProviderTypeMapping, DatabaseType, DatabaseTypeMapping } from '../../commons/ProviderType';
+import { 
+    ProviderType, 
+    ProviderTypeMapping, 
+    DatabaseType, 
+    DatabaseTypeMapping, 
+    TimeSeriesDatabaseType, 
+    TimeSeriesDatabaseTypeMapping 
+} from '../../commons/ProviderType';
 import yaml = require('js-yaml');
 import fs = require('fs');
 
@@ -28,12 +35,26 @@ class AppConfigDatabase
         password: string;
     }
 }
+
+class AppConfigTimeSeriesDatabase 
+{
+    provider: TimeSeriesDatabaseType;
+    path?: string;
+    config?: {
+        host: string;
+        port: number;
+        user: string;
+        database: string;
+        password: string;
+    }
+}
 /**
  * Application configuration.
  */
 class AppConfig {
     container: AppConfigContainer;
     database: AppConfigDatabase;
+    timeSeriesDatabase: AppConfigTimeSeriesDatabase
 }
 
 function getContainerProviderConfig(config: any): AppConfigContainer 
@@ -60,9 +81,33 @@ function getDatabtaseProviderConfig(config: any): AppConfigDatabase
     }
 }
 
+function getTimeSeriesDatabaseProviderConfig(config: any): AppConfigTimeSeriesDatabase
+{
+    const provider = TimeSeriesDatabaseTypeMapping[config['timeseries_database'].provider.type];
+    switch(provider) {
+        case TimeSeriesDatabaseType.TIMESCALE: return getTimescaleDatabaseProviderConfig(provider, config);
+        default: throw new Error("Invalid time series database provider");
+    }
+}
+
 function getPostgresProviderConfig(provider: DatabaseType, config: any): AppConfigDatabase 
 {
     const providerConfig = config['database'].provider.config;
+    return { 
+        provider: provider, 
+        config: {
+            host: providerConfig.host,
+            port: providerConfig.port,
+            user: providerConfig.user,
+            database: providerConfig.database,
+            password: providerConfig.password,
+        }
+    };
+}
+
+function getTimescaleDatabaseProviderConfig(provider: TimeSeriesDatabaseType, config: any): AppConfigTimeSeriesDatabase 
+{
+    const providerConfig = config['timeseries_database'].provider.config;
     return { 
         provider: provider, 
         config: {
@@ -80,7 +125,8 @@ function getAppConfig(): AppConfig
     const config = yaml.load(fs.readFileSync('app-config/ntcore.yml', 'utf8'));
     return { 
         container: getContainerProviderConfig(config),
-        database: getDatabtaseProviderConfig(config)
+        database: getDatabtaseProviderConfig(config),
+        timeSeriesDatabase: getTimeSeriesDatabaseProviderConfig(config),
     };
 }
 

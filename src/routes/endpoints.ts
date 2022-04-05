@@ -3,6 +3,7 @@ import { DeploymentController } from "../controllers/DeploymentController";
 import { ExperimentController } from "../controllers/ExperimentController";
 import { InstanceController } from "../controllers/InstanceController";
 import { WorkspaceController } from "../controllers/WorkspaceController";
+import { MonitoringController } from "../controllers/MonitoringController";
 
 export class Routes 
 {
@@ -10,6 +11,7 @@ export class Routes
     private instanceController: InstanceController;
     private experimentController: ExperimentController;
     private deploymentController: DeploymentController;
+    private monitoringController: MonitoringController;
 
     constructor() 
     {
@@ -17,6 +19,7 @@ export class Routes
         this.instanceController = new InstanceController();
         this.experimentController = new ExperimentController();
         this.deploymentController = new DeploymentController();
+        this.monitoringController = new MonitoringController();
     }
 
     public routes(app: express.Application): void 
@@ -59,5 +62,11 @@ export class Routes
             .delete(this.deploymentController.terminateDeploymentV1)
         app.route('/dsp/api/v1/:workspaceId/logs/:deploymentId')
             .get(this.deploymentController.retrieveLogEvents)
+        app.route('/dsp/api/v1/metrics/:id')
+            .post(this.monitoringController.writeTimeData);
+        app.route('/dsp/api/v1/metrics/read/range')
+            .get(this.monitoringController.queryDataWithinRange);
+        app.route('/dsp/api/v1/monitoring/:workspaceId/performance')
+            .post(this.monitoringController.uploadGroundTruth)
     }
 }

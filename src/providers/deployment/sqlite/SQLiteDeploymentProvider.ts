@@ -9,7 +9,8 @@ import {
     DEPLOYMENT_LOCK_CREATE,
     DEPLOYMENT_LOCK_DELETE,
     DEPLOYMENT_STATUS_UPDATE,
-    DEPLOYMENT_ACTIVE_READ
+    DEPLOYMENT_ACTIVE_READ,
+    GET_LATEST_DEPLOYED_VERSION
 } from "./SQLiteDeploymentQueries";
 import Database = require("better-sqlite3");
 
@@ -119,5 +120,12 @@ export class SQLiteDeploymentProvider implements DeploymentProvider
     public async getActive(workspaceId: string)
     {
         return this._databaseClient.prepare(DEPLOYMENT_ACTIVE_READ).get({workspaceId: workspaceId})
+    }
+
+    /*
+     * Find the latest deployed version of a workspace
+     */
+    public async findLatestDeployedVersion(workspaceId: string) {
+        return this._databaseClient.prepare(GET_LATEST_DEPLOYED_VERSION).get({workspace_id: workspaceId, status: DeploymentStatus.RUNNING});
     }
 }
