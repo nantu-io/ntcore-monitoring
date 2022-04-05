@@ -8,7 +8,8 @@ import {
     DEPLOYMENT_LOCK_INITIALIZATION,
     DEPLOYMENT_LOCK_CREATE,
     DEPLOYMENT_LOCK_DELETE,
-    DEPLOYMENT_STATUS_UPDATE
+    DEPLOYMENT_STATUS_UPDATE,
+    GET_LATEST_DEPLOYED_VERSION
 } from "./LocalDeploymentQueries";
 import Database = require("better-sqlite3");
 
@@ -100,5 +101,12 @@ export class LocalDeploymentProvider implements GenericDeploymentProvider
      */
     public async updateStatus(workspaceId: string, id: string, status: DeploymentStatus) {
         return this._databaseClient.prepare(DEPLOYMENT_STATUS_UPDATE).run({workspaceId: workspaceId, id: id, status: status})
+    }
+
+    /**
+     * Find the latest deployed version of a workspace
+     */
+    public async findLatestDeployedVersion(workspaceId: string) {
+        return this._databaseClient.prepare(GET_LATEST_DEPLOYED_VERSION).get({workspace_id: workspaceId, status: DeploymentStatus.SUCCEED});
     }
 }

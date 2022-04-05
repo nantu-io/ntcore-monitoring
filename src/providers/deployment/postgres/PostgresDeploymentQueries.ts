@@ -62,3 +62,7 @@ export const DEPLOYMENT_STATUS_UPDATE = `
 * Query to delete the deployment lock.
 */
 export const DEPLOYMENT_LOCK_DELETE = `DELETE FROM deployment_locks WHERE workspace_id=$1;`;
+
+export const GET_LATEST_DEPLOYED_VERSION = `
+    SELECT version FROM deployments WHERE workspace_id = $1 AND status = $2 ORDER BY version DESC LIMIT 1;
+`;

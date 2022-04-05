@@ -8,12 +8,16 @@ import {
     DEPLOYMENT_LOCK_INITIALIZATION,
     DEPLOYMENT_LOCK_CREATE,
     DEPLOYMENT_LOCK_DELETE,
-    DEPLOYMENT_STATUS_UPDATE
+    DEPLOYMENT_STATUS_UPDATE,
+    GET_LATEST_DEPLOYED_VERSION
 } from "./PostgresDeploymentQueries";
 import { Pool } from 'pg';
 
-export class PostgresDeploymentProvider implements GenericDeploymentProvider 
-{
+interface VersionQueryResult {
+    rows: { version: number }[]
+}
+
+export class PostgresDeploymentProvider implements GenericDeploymentProvider {
     private _pgPool: Pool;
     /**
      * Initialize the experiments table.
@@ -100,5 +104,14 @@ export class PostgresDeploymentProvider implements GenericDeploymentProvider
     public async updateStatus(workspaceId: string, id: string, status: DeploymentStatus) 
     {
         await this._pgPool.query(DEPLOYMENT_STATUS_UPDATE, [workspaceId, id, status]);
+    }
+
+    /**
+     * Find the latest deployed version of workspace
+     * @param workspaceId Workspace id.
+     */
+    public async findLatestDeployedVersion(workspaceId: string) {
+        const res: VersionQueryResult = await this._pgPool.query(GET_LATEST_DEPLOYED_VERSION, [workspaceId, DeploymentStatus.SUCCEED]);
+        return res.rows.length > 0 ? res.rows[0].version : undefined;
     }
 }
