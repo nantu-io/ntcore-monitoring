@@ -7,5 +7,9 @@ container:
 
 database:
   provider:
-    type: sqlite
+    type: postgres
     path: data/db/ntcore.db
+
+timeseries_database:
+  provider:
+    type: timescale

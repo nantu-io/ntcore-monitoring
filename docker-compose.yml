@@ -32,6 +32,17 @@ services:
       - "./app-config/ntcore.yml:/usr/src/app/app-config/ntcore.yml"
     networks:
       - gateway
+    depends_on:
+      - timescaleDB
+
+  timescaleDB:
+    image: timescale/timescaledb:latest-pg12
+    environment:
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
 networks:
   gateway:

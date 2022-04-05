@@ -76,6 +76,10 @@ export interface GenericDeploymentProvider
      * Update the status of a deployment;
      */
     updateStatus: (workspaceId: string, id: string, status: DeploymentStatus) => Promise<any>;
+    /**
+     * Find latest deployed version
+     */
+    findLatestDeployedVersion: (workspaceId: string) => Promise<any>;
 }
 
 export class DeploymentProviderFactory
