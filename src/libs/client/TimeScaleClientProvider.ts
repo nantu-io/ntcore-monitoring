@@ -7,7 +7,8 @@ export default class TimeSeriesDatabaseClientProvider {
      */
     private static _client: Pool;
 
-    public static get(): Pool {
+    public static get(): Pool 
+    {
         return this._client || (this._client = new Pool(appConfig.timeSeriesDatabase.config));
     }
 }

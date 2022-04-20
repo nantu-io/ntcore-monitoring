@@ -14,7 +14,6 @@
         "@kubernetes/client-node": "^0.15.0",
         "@types/js-yaml": "^4.0.2",
         "async-wait-until": "^2.0.5",
-        "aws-sdk": "^2.384.0",
         "axios": "^0.21.1",
         "better-sqlite3": "7.5.0",
         "body-parser": "^1.18.3",

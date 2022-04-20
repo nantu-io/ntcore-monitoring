@@ -62,11 +62,11 @@ export class Routes
             .delete(this.deploymentController.terminateDeploymentV1)
         app.route('/dsp/api/v1/:workspaceId/logs/:deploymentId')
             .get(this.deploymentController.retrieveLogEvents)
-        app.route('/dsp/api/v1/metrics/:id')
-            .post(this.monitoringController.writeTimeData);
-        app.route('/dsp/api/v1/metrics/read/range')
-            .get(this.monitoringController.queryDataWithinRange);
-        app.route('/dsp/api/v1/monitoring/:workspaceId/performance')
+        app.route('/dsp/api/v1/monitoring/metrics')
+            .post(this.monitoringController.writeTimeSeries);
+        app.route('/dsp/api/v1/monitoring/:workspaceId/metrics')
+            .get(this.monitoringController.queryTimeSeries);
+        app.route('/dsp/api/v1/monitoring/performances')
             .post(this.monitoringController.uploadGroundTruth)
     }
 }

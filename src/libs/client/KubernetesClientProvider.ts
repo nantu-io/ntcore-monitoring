@@ -1,5 +1,5 @@
-import k8s = require('@kubernetes/client-node');
 import { KubernetesObjectApi } from '@kubernetes/client-node';
+import k8s = require('@kubernetes/client-node');
 
 export default class ContainerClientProvider 
 {

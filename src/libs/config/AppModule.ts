@@ -2,7 +2,7 @@ import { WorkpaceProviderFactory } from "../../providers/workspace/WorkspaceProv
 import { ExperimentProviderFactory } from "../../providers/experiment/ExperimentProvider";
 import { DeploymentProviderFactory } from "../../providers/deployment/DeploymentProvider";
 import { ContainerGroupStateProviderFactory } from "../../providers/container/ContainerGroupProviderFactory";
-import { MonitoringProviderFactory } from "../../providers/monitoring/GenericMonitoringProvider";
+import { MonitoringProviderFactory } from "../../providers/monitoring/MonitoringProvider";
 
 export const workspaceProvider = new WorkpaceProviderFactory().createProvider();
 export const experimentProvider = new ExperimentProviderFactory().createProvider();
