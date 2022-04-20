@@ -41,35 +41,34 @@ export default class TimescaleMonitoringProvider implements MonitoringProvider
      */
     public async create(metric: Metric): Promise<Metric>
     {
-        const { workspaceId, version, name, value, timestamp } = metric;
+        const { workspaceId, name, value, timestamp } = metric;
         const formattedTimestamp = this.formatDateTime(timestamp);
-        await this._pool.query(METRIC_CREATE, [workspaceId, version, name, value, formattedTimestamp]);
+        await this._pool.query(METRIC_CREATE, [workspaceId, name, value, formattedTimestamp]);
         return metric;
     }
 
     /**
      * Retrieves timeseries data for a given metric.
      * @param workspaceId workspace id.
-     * @param version model version.
      * @param name metric name.
      * @param startTime start timestamp.
      * @param endTime end timestamp.
      * @returns timeseries data.
      */
-    public async query(workspaceId: string, version: number, name: string, startTime: number, endTime: number)
+    public async query(workspaceId: string, name: string, startTime: number, endTime: number)
     {
         if (startTime && endTime) {
             const formattedStartTime = this.formatDateTime(startTime);
             const formattedEndTime = this.formatDateTime(endTime);
-            return (await this._pool.query(METRIC_READ_WITH_RANGE, [workspaceId, version, name, formattedStartTime, formattedEndTime])).rows;
+            return (await this._pool.query(METRIC_READ_WITH_RANGE, [workspaceId, name, formattedStartTime, formattedEndTime])).rows;
         } else if (startTime) {
             const formattedStartTime = this.formatDateTime(startTime);
-            return (await this._pool.query(METRIC_READ_WITH_START_TIME, [workspaceId, version, name, formattedStartTime])).rows;
+            return (await this._pool.query(METRIC_READ_WITH_START_TIME, [workspaceId, name, formattedStartTime])).rows;
         } else if (endTime) {
             const formattedEndTime = this.formatDateTime(endTime);
-            return (await this._pool.query(METRIC_READ_WITH_END_TIME, [workspaceId, version, name, formattedEndTime])).rows;
+            return (await this._pool.query(METRIC_READ_WITH_END_TIME, [workspaceId, name, formattedEndTime])).rows;
         }
-        return (await this._pool.query(METRIC_READ_WITHOUT_RANGE, [workspaceId, version, name])).rows;
+        return (await this._pool.query(METRIC_READ_WITHOUT_RANGE, [workspaceId, name])).rows;
     }
 
     /**
@@ -82,12 +81,13 @@ export default class TimescaleMonitoringProvider implements MonitoringProvider
     public async uploadGroundTruth(workspaceId: string, inputData: any, groundTruth: any, timestamp: number) 
     {
         const formattedTimestamp = this.formatDateTime(timestamp);
+        // TODO: Handle the ground truth request asynchronously via a queue.
         const response = (await axios.post<Prediction>(`/s/${workspaceId}/predict`)).data;
-        await this._pool.query(PERFORMANCE_CREATE, [workspaceId, response.version, inputData, groundTruth, response.result, formattedTimestamp]);
+        await this._pool.query(PERFORMANCE_CREATE, [workspaceId, inputData, groundTruth, response.result, formattedTimestamp]);
     }
 
     private formatDateTime(epoch: number): string
     {
-        return moment.unix(epoch).format(DATETIME_FORMAT);
+        return moment(epoch.toString(), 'x').format(DATETIME_FORMAT);
     }
 }

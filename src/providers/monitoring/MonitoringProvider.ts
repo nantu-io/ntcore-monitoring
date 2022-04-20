@@ -11,7 +11,6 @@ export class Metric
     name: string;
     value: number;
     workspaceId: string;
-    version: number;
     timestamp?: number;
 }
 /**
@@ -20,7 +19,6 @@ export class Metric
 export interface Prediction 
 {
     workspaceId: string,
-    version: number,
     inputData: any,
     result: any,
     timestamp?: number,
@@ -39,7 +37,7 @@ export interface MonitoringProvider
     /**
      * Query range data
      */
-    query: (workspaceId: string, version: number, name: string, startTime: number, endTime: number) => Promise<Metric[]>;
+    query: (workspaceId: string, name: string, startTime: number, endTime: number) => Promise<Metric[]>;
     /**
      * Upload ground truth
      */

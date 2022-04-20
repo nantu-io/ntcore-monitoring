@@ -18,17 +18,17 @@ export class MonitoringController {
      * @param res Response object.
      * Example: curl -X POST \
      *      -H "Content-Type: application/json" \
-     *      -d '{"workspaceId": "C123", "version": "1", "name": "test", value: 1.0 ,"timestamp": 1650426681000}' \
+     *      -d '{"workspaceId": "C123", "name": "test", value: 1.0 ,"timestamp": 1650426681000}' \
      *      localhost:8180/dsp/api/v1/monitoring/metrics
      */
     public async writeTimeSeries(req: Request<{}, {}, Metric, {}>, res: Response) 
     {
         try {
-            const { workspaceId, version, name, value } = req.body;
+            const { workspaceId, name, value } = req.body;
             const timestamp = req.body.timestamp ?? Date.now();
-            this.validateRequest(workspaceId, version, name, value);
-            await monitoringProvider.create({workspaceId, version, name, value, timestamp});
-            res.status(201).json({workspaceId, version, name, value, timestamp});
+            this.validateRequest(workspaceId, name, value);
+            await monitoringProvider.create({workspaceId, name, value, timestamp});
+            res.status(201).json({workspaceId, name, value, timestamp});
         } catch (err) {
             this.handleException(err, res);
         }
@@ -38,17 +38,17 @@ export class MonitoringController {
      * Endpoint to ingest timeseries data.
      * @param req Request object.
      * @param res Response object.
-     * Example: curl localhost:8180/dsp/api/v1/monitoring/{workspaceId}/metrics?version=2&name=metric&startTime=1650426680000&endTime=1650426682000
+     * Example: curl localhost:8180/dsp/api/v1/monitoring/{workspaceId}/metrics?name=metric&startTime=1650426680000&endTime=1650426682000
      */
     public async queryTimeSeries(
-        req: Request<{workspaceId: string}, {}, {}, {version: number, name: string, startTime: number, endTime: number}>, 
+        req: Request<{workspaceId: string}, {}, {}, {name: string, startTime: number, endTime: number}>, 
         res: Response)
     {
         const { workspaceId } = req.params;
-        const { version, name, startTime, endTime } = req.query;
+        const { name, startTime, endTime } = req.query;
         try {
-            this.validateRequest(workspaceId, version, name);
-            const metrics = await monitoringProvider.query(workspaceId, version, name, startTime, endTime);
+            this.validateRequest(workspaceId, name);
+            const metrics = await monitoringProvider.query(workspaceId, name, startTime, endTime);
             res.status(200).json({ metrics });
         } catch (err) {
             this.handleException(err, res);
