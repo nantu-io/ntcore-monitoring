@@ -3,8 +3,8 @@ import {
     ProviderTypeMapping, 
     DatabaseType, 
     DatabaseTypeMapping, 
-    TimeSeriesDatabaseType, 
-    TimeSeriesDatabaseTypeMapping 
+    MonitoringProviderType, 
+    CloudWatcTypeMapping 
 } from '../../commons/ProviderType';
 import yaml = require('js-yaml');
 import fs = require('fs');
@@ -35,26 +35,42 @@ class AppConfigDatabase
         password: string;
     }
 }
-
-class AppConfigTimeSeriesDatabase 
+/**
+ * Monitoring setup in AppConfig.
+ */
+class AppConfigMonitoring 
 {
-    provider: TimeSeriesDatabaseType;
-    path?: string;
-    config?: {
-        host: string;
-        port: number;
-        user: string;
-        database: string;
-        password: string;
-    }
+    provider: MonitoringProviderType;
+    config?: TimeseriesDBConfig | CloudWatchConfig;
+}
+/**
+ * Timeseries database setup in AppConfig.
+ */
+export class TimeseriesDBConfig 
+{
+    host: string;
+    port: number;
+    user: string;
+    database: string;
+    password: string;
+}
+/**
+ * CloudWatch setup in AppConfig.
+ */
+export class CloudWatchConfig 
+{
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
 }
 /**
  * Application configuration.
  */
-class AppConfig {
+class AppConfig 
+{
     container: AppConfigContainer;
     database: AppConfigDatabase;
-    timeSeriesDatabase: AppConfigTimeSeriesDatabase
+    monitoring: AppConfigMonitoring
 }
 
 function getContainerProviderConfig(config: any): AppConfigContainer 
@@ -81,12 +97,13 @@ function getDatabtaseProviderConfig(config: any): AppConfigDatabase
     }
 }
 
-function getTimeSeriesDatabaseProviderConfig(config: any): AppConfigTimeSeriesDatabase
+function getMonitoringProviderConfig(config: any): AppConfigMonitoring
 {
-    const provider = TimeSeriesDatabaseTypeMapping[config['timeseries_database'].provider.type];
+    const provider = CloudWatcTypeMapping[config['monitoring'].provider.type];
     switch(provider) {
-        case TimeSeriesDatabaseType.TIMESCALE: return getTimescaleDatabaseProviderConfig(provider, config);
-        default: throw new Error("Invalid time series database provider");
+        case MonitoringProviderType.TIMESCALE: return getTimeseriesDBProviderConfig(provider, config);
+        case MonitoringProviderType.CLOUDWATCH: return getCloudWatchConfig(provider, config);
+        default: throw new Error("Invalid monitoring provider");
     }
 }
 
@@ -105,9 +122,9 @@ function getPostgresProviderConfig(provider: DatabaseType, config: any): AppConf
     };
 }
 
-function getTimescaleDatabaseProviderConfig(provider: TimeSeriesDatabaseType, config: any): AppConfigTimeSeriesDatabase 
+function getTimeseriesDBProviderConfig(provider: MonitoringProviderType, config: any): AppConfigMonitoring 
 {
-    const providerConfig = config['timeseries_database'].provider.config;
+    const providerConfig = config['monitoring'].provider.config;
     return { 
         provider: provider, 
         config: {
@@ -120,13 +137,26 @@ function getTimescaleDatabaseProviderConfig(provider: TimeSeriesDatabaseType, co
     };
 }
 
+function getCloudWatchConfig(provider: MonitoringProviderType, config: any): AppConfigMonitoring 
+{
+    const providerConfig = config['monitoring'].provider.config;
+    return { 
+        provider: provider, 
+        config: {
+            region: providerConfig.region,
+            accessKeyId: providerConfig.accessKeyId,
+            secretAccessKey: providerConfig.secretAccessKey
+        }
+    };
+}
+
 function getAppConfig(): AppConfig 
 {
     const config = yaml.load(fs.readFileSync('app-config/ntcore.yml', 'utf8'));
     return { 
         container: getContainerProviderConfig(config),
         database: getDatabtaseProviderConfig(config),
-        timeSeriesDatabase: getTimeSeriesDatabaseProviderConfig(config),
+        monitoring: getMonitoringProviderConfig(config),
     };
 }
 

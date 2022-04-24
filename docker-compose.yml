@@ -19,9 +19,9 @@ services:
     networks:
       - gateway
 
-  ntcore:
-    image: "ntcore/webserver:latest"
-    container_name: "ntcore-service"
+  ntcore-monitoring:
+    image: "ntcore/monitoring:latest"
+    container_name: "ntcore-monitoring"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ntcore.rule=PathPrefix(`/`)"
@@ -36,13 +36,14 @@ services:
       - timescaleDB
 
   timescaleDB:
-    image: timescale/timescaledb:latest-pg12
+    image: timescale/timescaledb:latest-pg14
+    container_name: timescaleDB
     environment:
-      POSTGRES_PASSWORD: 1234
-    volumes:
-      - ./data:/var/lib/postgresql/data
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
+    networks:
+      - gateway
 
 networks:
   gateway:

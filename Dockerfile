@@ -2,15 +2,14 @@
 # App Dockerfile
 # Version: 0.0.1
 #
-# Author: Jinxiong Tan
+# Author: NTCore
 # Date: 2020-08-21
 
-FROM node:14 as BUILD_IMAGE
+FROM node:16 as BUILD_IMAGE
 
 # Install python runtime
-RUN apk update && \
-    apk add python3 make g++ && \
-    rm -rf /var/cache/apk/*
+RUN apt update && \
+    apt install python3 make g++
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -32,12 +31,12 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage build
-FROM node:14-alpine
+FROM node:16-slim
 
 # Create app directory
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package.json ./
 
 # copy from build image
 COPY --from=BUILD_IMAGE /usr/src/app/dist ./dist

@@ -1,4 +1,4 @@
-import { appConfig } from "../config/AppConfigProvider";
+import { appConfig, TimeseriesDBConfig } from "../config/AppConfigProvider";
 import { Pool } from "pg";
 
 export default class TimeSeriesDatabaseClientProvider {
@@ -7,8 +7,9 @@ export default class TimeSeriesDatabaseClientProvider {
      */
     private static _client: Pool;
 
-    public static get(): Pool 
+    public static get(): Pool
     {
-        return this._client || (this._client = new Pool(appConfig.timeSeriesDatabase.config));
+        const timeseriesDBConfig = appConfig.monitoring.config as TimeseriesDBConfig
+        return this._client || (this._client = new Pool(timeseriesDBConfig));
     }
 }

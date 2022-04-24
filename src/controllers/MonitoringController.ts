@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { IllegalArgumentException } from '../commons/Errors';
 import { monitoringProvider } from '../libs/config/AppModule';
-import { Metric } from '../providers/monitoring/MonitoringProvider';
+import { Metric, GroundTruthUploadContext } from '../providers/monitoring/MonitoringProvider';
 
 export class MonitoringController {
 
@@ -48,7 +48,7 @@ export class MonitoringController {
         const { name, startTime, endTime } = req.query;
         try {
             this.validateRequest(workspaceId, name);
-            const metrics = await monitoringProvider.query(workspaceId, name, startTime, endTime);
+            const metrics = await monitoringProvider.query({workspaceId, name, startTime, endTime});
             res.status(200).json({ metrics });
         } catch (err) {
             this.handleException(err, res);
@@ -61,18 +61,18 @@ export class MonitoringController {
      * @param res Response object.
      * Example: curl -X POST \
      *      -H "Content-Type: application/json" \
-     *      -d '{"workspaceId": "C123", "inputData": "1", "groundTruth": "2", value: 1.0 ,"timestamp": 1650426681000}' \
+     *      -d '{"workspaceId": "C123", "inputData": "1", "groundTruth": "2", "value": 1.0 ,"timestamp": 1650426681000}' \
      *      localhost:8180/dsp/api/v1/monitoring/performances
      */
     public async uploadGroundTruth(
-        req: Request<{}, {}, {workspaceId: string, inputData: any, groundTruth: any, timestamp: number}, {}>, 
-        res: Response) 
+        req: Request<{}, {}, GroundTruthUploadContext, {}>, 
+        res: Response)
     {
         const { workspaceId, inputData, groundTruth } = req.body;
         try {
             this.validateRequest(workspaceId, inputData, groundTruth);
             const timestamp = req.body.timestamp ?? Date.now();
-            await monitoringProvider.uploadGroundTruth(workspaceId, inputData, groundTruth, timestamp)
+            await monitoringProvider.uploadGroundTruth(req.body)
             res.status(200).json({ workspaceId, inputData, groundTruth, timestamp });
         } catch (err) {
             this.handleException(err, res);
@@ -90,9 +90,9 @@ export class MonitoringController {
     private handleException(err: Error, res: Response)
     {
         if (err instanceof IllegalArgumentException) {
-            res.status(400).json({error: `Invalid input parameters: ${err}`});
+            res.status(400).json({error: `Invalid input parameters. ${err}`});
         } else {
-            res.status(500).json({error: `Unable process request: ${err}`});
+            res.status(500).json({error: `Unable process request. ${err}`});
         }
     }
 }

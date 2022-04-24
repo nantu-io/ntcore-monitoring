@@ -1,10 +1,32 @@
 import { appConfig } from "../../libs/config/AppConfigProvider";
-import { TimeSeriesDatabaseType } from "../../commons/ProviderType";
+import { MonitoringProviderType } from "../../commons/ProviderType";
 import TimescaleClientProvider from "../../libs/client/TimeScaleClientProvider";
 import TimescaleMonitoringProvider from "./timescale/TimescaleMonitoringProvider";
+import CloudWatchMonitoringProvider from "./cloudwatch/CloudWatchMonitoringProvider";
+import CloudWatchClientProvider from "../../libs/client/aws/AWSCloudWatchClientProvider";
 
 /**
- * Metric Object.
+ * Metric Query Context.
+ */
+export class MetricQueryContext
+{
+    workspaceId: string;
+    name: string;
+    startTime: number;
+    endTime: number;
+}
+/**
+ * Ground Truth Upload Context.
+ */
+export class GroundTruthUploadContext
+{
+    workspaceId: string;
+    inputData: any;
+    groundTruth: any;
+    timestamp: number;
+}
+/**
+ * Metric Class Definition.
  */
 export class Metric 
 {
@@ -14,7 +36,7 @@ export class Metric
     timestamp?: number;
 }
 /**
- * Prediction Object.
+ * Prediction Class Definition.
  */
 export interface Prediction 
 {
@@ -37,11 +59,11 @@ export interface MonitoringProvider
     /**
      * Query range data
      */
-    query: (workspaceId: string, name: string, startTime: number, endTime: number) => Promise<Metric[]>;
+    query: (context: MetricQueryContext) => Promise<Metric[]>;
     /**
      * Upload ground truth
      */
-    uploadGroundTruth: (workspaceId: string, inputData: any, groundTruth: any, timestamp: number) => Promise<void>;
+    uploadGroundTruth: (context: GroundTruthUploadContext) => Promise<void>;
 }
 
 export class MonitoringProviderFactory
@@ -52,9 +74,10 @@ export class MonitoringProviderFactory
      */
     public createProvider(): MonitoringProvider
     {
-        const providerType: TimeSeriesDatabaseType = appConfig.timeSeriesDatabase.provider;
+        const providerType: MonitoringProviderType = appConfig.monitoring.provider;
         switch(providerType) {
-            case TimeSeriesDatabaseType.TIMESCALE: return new TimescaleMonitoringProvider(TimescaleClientProvider.get());
+            case MonitoringProviderType.TIMESCALE: return new TimescaleMonitoringProvider(TimescaleClientProvider.get());
+            case MonitoringProviderType.CLOUDWATCH: return new CloudWatchMonitoringProvider(CloudWatchClientProvider.get());
             default: throw new Error("Invalid timeseries database type");
         }
     }

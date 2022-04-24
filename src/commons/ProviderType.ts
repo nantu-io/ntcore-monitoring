@@ -72,16 +72,24 @@ export const enum DatabaseType {
      "postgres": DatabaseType.POSTGRES,
 }
 
-export const enum TimeSeriesDatabaseType {
+export const enum MonitoringProviderType {
     /**
      * Timescale
      */
     TIMESCALE = "TIMESCALE",
+    /**
+     * AWS CloudWatch
+     */
+    CLOUDWATCH = "CLOUDWATCH",
 }
 
-export const TimeSeriesDatabaseTypeMapping = {
+export const CloudWatcTypeMapping = {
     /**
      * Timescale
      */
-    "timescale": TimeSeriesDatabaseType.TIMESCALE,
+    "timescale": MonitoringProviderType.TIMESCALE,
+    /**
+     * AWS CloudWatch
+     */
+    "cloudwatch": MonitoringProviderType.CLOUDWATCH,
 }

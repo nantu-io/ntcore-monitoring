@@ -17,6 +17,7 @@
     "dateformat": "^4.5.1",
     "faker": "^6.6.6",
     "history": "^5.0.0",
+    "moment": "^2.29.3",
     "mui-datatables": "^3.7.7",
     "react": "^16.13.1",
     "react-chartjs-2": "^4.0.1",

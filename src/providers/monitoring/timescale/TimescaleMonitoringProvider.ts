@@ -1,4 +1,4 @@
-import { MonitoringProvider, Metric, Prediction } from '../MonitoringProvider';
+import { MonitoringProvider, Metric, Prediction, MetricQueryContext, GroundTruthUploadContext } from '../MonitoringProvider';
 import { Pool } from "pg";
 import axios from 'axios';
 import * as moment from 'moment';
@@ -49,41 +49,35 @@ export default class TimescaleMonitoringProvider implements MonitoringProvider
 
     /**
      * Retrieves timeseries data for a given metric.
-     * @param workspaceId workspace id.
-     * @param name metric name.
-     * @param startTime start timestamp.
-     * @param endTime end timestamp.
+     * @param context metric query context.
      * @returns timeseries data.
      */
-    public async query(workspaceId: string, name: string, startTime: number, endTime: number)
+    public async query(context: MetricQueryContext): Promise<Metric[]>
     {
-        if (startTime && endTime) {
-            const formattedStartTime = this.formatDateTime(startTime);
-            const formattedEndTime = this.formatDateTime(endTime);
-            return (await this._pool.query(METRIC_READ_WITH_RANGE, [workspaceId, name, formattedStartTime, formattedEndTime])).rows;
-        } else if (startTime) {
-            const formattedStartTime = this.formatDateTime(startTime);
-            return (await this._pool.query(METRIC_READ_WITH_START_TIME, [workspaceId, name, formattedStartTime])).rows;
-        } else if (endTime) {
-            const formattedEndTime = this.formatDateTime(endTime);
-            return (await this._pool.query(METRIC_READ_WITH_END_TIME, [workspaceId, name, formattedEndTime])).rows;
+        if (context.startTime && context.endTime) {
+            const formattedStartTime = this.formatDateTime(context.startTime);
+            const formattedEndTime = this.formatDateTime(context.endTime);
+            return (await this._pool.query(METRIC_READ_WITH_RANGE, [context.workspaceId, context.name, formattedStartTime, formattedEndTime])).rows;
+        } else if (context.startTime) {
+            const formattedStartTime = this.formatDateTime(context.startTime);
+            return (await this._pool.query(METRIC_READ_WITH_START_TIME, [context.workspaceId, context.name, formattedStartTime])).rows;
+        } else if (context.endTime) {
+            const formattedEndTime = this.formatDateTime(context.endTime);
+            return (await this._pool.query(METRIC_READ_WITH_END_TIME, [context.workspaceId, context.name, formattedEndTime])).rows;
         }
-        return (await this._pool.query(METRIC_READ_WITHOUT_RANGE, [workspaceId, name])).rows;
+        return (await this._pool.query(METRIC_READ_WITHOUT_RANGE, [context.workspaceId, context.name])).rows;
     }
 
     /**
      * Uploads input data and ground truth.
-     * @param workspaceId workspace id.
-     * @param inputData input data.
-     * @param groundTruth ground truth for comparison.
-     * @param timestamp request timestamp.
+     * @param context ground truth upload context.
      */
-    public async uploadGroundTruth(workspaceId: string, inputData: any, groundTruth: any, timestamp: number) 
+    public async uploadGroundTruth(context: GroundTruthUploadContext) 
     {
-        const formattedTimestamp = this.formatDateTime(timestamp);
+        // const formattedTimestamp = this.formatDateTime(context.timestamp);
         // TODO: Handle the ground truth request asynchronously via a queue.
-        const response = (await axios.post<Prediction>(`/s/${workspaceId}/predict`)).data;
-        await this._pool.query(PERFORMANCE_CREATE, [workspaceId, inputData, groundTruth, response.result, formattedTimestamp]);
+        // const response = (await axios.post<Prediction>(`/s/${context.workspaceId}/predict`)).data;
+        // await this._pool.query(PERFORMANCE_CREATE, [context.workspaceId, context.inputData, context.groundTruth, response.result, formattedTimestamp]);
     }
 
     private formatDateTime(epoch: number): string
