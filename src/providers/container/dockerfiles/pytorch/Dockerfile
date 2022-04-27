@@ -1,1 +1,0 @@
-FROM ntcore/fast-torch

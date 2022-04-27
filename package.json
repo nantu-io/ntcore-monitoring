@@ -63,7 +63,7 @@
     },
     "scripts": {
         "prestart": "mkdir -p data/db",
-        "build": "tsc && cp -r ./src/providers/container/dockerfiles ./dist/providers/container/",
+        "build": "tsc",
         "dev": "npm run prestart && ts-node ./src/app.ts",
         "start": "nodemon ./dist/app.js",
         "prod": "npm run prestart && npm run start && npm run postbuild"

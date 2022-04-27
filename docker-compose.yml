@@ -19,6 +19,16 @@ services:
     networks:
       - gateway
 
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    container_name: timescaledb
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    networks:
+      - gateway
+
   ntcore-monitoring:
     image: "ntcore/monitoring:latest"
     container_name: "ntcore-monitoring"
@@ -33,17 +43,8 @@ services:
     networks:
       - gateway
     depends_on:
-      - timescaleDB
-
-  timescaleDB:
-    image: timescale/timescaledb:latest-pg14
-    container_name: timescaleDB
-    environment:
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    networks:
-      - gateway
+      - timescaledb
+    command: bash -c 'while !</dev/tcp/timescaledb/5432; do sleep 1; done; npm run prod'
 
 networks:
   gateway:
