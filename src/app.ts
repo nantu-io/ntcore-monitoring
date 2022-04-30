@@ -18,19 +18,16 @@ export class App
     }
 
     private config(): void {
-      // support application/json type post data
-      this.app.use(bodyParser.json({limit: '500mb'}));
-      // support application/x-www-form-urlencoded post data
-      this.app.use(bodyParser.urlencoded({ limit: '500mb', extended: false }));
-      // config static assets
-      this.app.use(express.static(path.join(__dirname, '/../webapp/build')));
+      // config js/css route
+      this.app.use('/dsp/monitoring', express.static(path.join(__dirname, '/../webapp/build')));
+      // config html route
       this.app.get('/dsp/console/*', (req, res, next) => {
         res.sendFile(path.join(__dirname, '/../webapp/build/index.html'));
       });
       // Listen to port
       const PORT = 8180;
       initialize().then(() => {
-        this.app.listen(PORT, () => console.log(`Server is running with ${appConfig.container.provider} provider`));
+        this.app.listen(PORT, () => console.log(`NTCore Monitoring is running with ${appConfig.container.provider} provider`));
       });
     }
 }

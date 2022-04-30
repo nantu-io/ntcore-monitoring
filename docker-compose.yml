@@ -34,17 +34,37 @@ services:
     container_name: "ntcore-monitoring"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ntcore.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.ntcore.entrypoints=web"
+      - "traefik.http.routers.monitoring-console.rule=PathPrefix(`/dsp/console/monitoring`)"
+      - "traefik.http.routers.monitoring-console.entrypoints=web"
+      - "traefik.http.routers.monitoring-static.rule=PathPrefix(`/dsp/monitoring`)"
+      - "traefik.http.routers.monitoring-static.entrypoints=web"
+      - "traefik.http.routers.monitoring-api.rule=PathPrefix(`/dsp/api/v{[0-9]+}/monitoring`)"
+      - "traefik.http.routers.monitoring-api.entrypoints=web"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - data:/usr/src/app/data
       - "./app-config/ntcore.yml:/usr/src/app/app-config/ntcore.yml"
     networks:
       - gateway
     depends_on:
       - timescaledb
     command: bash -c 'while !</dev/tcp/timescaledb/5432; do sleep 1; done; npm run prod'
+
+  ntcore:
+    image: "ntcore/webserver:latest"
+    container_name: "ntcore"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.public-console.rule=PathPrefix(`/dsp/console`)"
+      - "traefik.http.routers.public-console.entrypoints=web"
+      - "traefik.http.routers.public-static.rule=PathPrefix(`/dsp/public`)"
+      - "traefik.http.routers.public-static.entrypoints=web"
+      - "traefik.http.routers.public-api.rule=PathPrefix(`/dsp/api`)"
+      - "traefik.http.routers.public-api.entrypoints=web"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - data:/usr/src/app/data
+      - "./app-config/ntcore.yml:/usr/src/app/app-config/ntcore.yml"
+    networks:
+      - gateway
 
 networks:
   gateway:
