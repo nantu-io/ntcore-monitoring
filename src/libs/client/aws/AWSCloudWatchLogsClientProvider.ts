@@ -1,5 +1,5 @@
 import { CloudWatchLogsClient } from "@aws-sdk/client-cloudwatch-logs";
-import { appConfig } from "../../config/AppConfigProvider";
+import { appConfig, CloudWatchConfig } from "../../config/AppConfigProvider";
 
 export default class LogsClientProvider 
 {
@@ -10,11 +10,7 @@ export default class LogsClientProvider
 
     public static get(): CloudWatchLogsClient
     {
-        const config = {
-            region: appConfig.container.region,
-            accessKeyId: appConfig.container.accessKeyId,
-            secretAccessKey: appConfig.container.secretAccessKey,
-        }
-        return this._client || (this._client = new CloudWatchLogsClient(config));
+        const cloudwatchConfig = appConfig.monitoring.config as CloudWatchConfig
+        return this._client || (this._client = new CloudWatchLogsClient(cloudwatchConfig));
     }
 }

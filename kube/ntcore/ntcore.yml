@@ -1,3 +1,20 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ntcore
+data:
+  ntcore.yml: |
+    container:
+      provider:
+        type: kubernetes
+        namespace: default
+    database:
+      provider:
+        type: sqlite
+        path: data/db/ntcore.db
+
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -32,7 +49,7 @@ spec:
         app: ntcore
     spec:
       volumes:
-        - name: app-config
+        - name: ntcore
           configMap:
             name: ntcore
       containers:
@@ -42,7 +59,7 @@ spec:
             - name: web
               containerPort: 8180
           volumeMounts:
-            - name: app-config
+            - name: ntcore
               mountPath: /usr/src/app/app-config
 
 ---
@@ -55,8 +72,18 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: PathPrefix(`/`)
-    kind: Rule
-    services:
-    - name: ntcore
-      port: 8180
+    - match: PathPrefix(`/dsp/console`)
+      kind: Rule
+      services:
+      - name: ntcore
+        port: 8180
+    - match: PathPrefix(`/dsp/public`)
+      kind: Rule
+      services:
+      - name: ntcore
+        port: 8180
+    - match: PathPrefix(`/dsp/api`)
+      kind: Rule
+      services:
+      - name: ntcore
+        port: 8180

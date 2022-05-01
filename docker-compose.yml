@@ -41,7 +41,7 @@ services:
       - "traefik.http.routers.monitoring-api.rule=PathPrefix(`/dsp/api/v{[0-9]+}/monitoring`)"
       - "traefik.http.routers.monitoring-api.entrypoints=web"
     volumes:
-      - "./app-config/ntcore.yml:/usr/src/app/app-config/ntcore.yml"
+      - "./app-config/monitoring.yml:/usr/src/app/app-config/monitoring.yml"
     networks:
       - gateway
     depends_on:

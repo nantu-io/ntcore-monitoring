@@ -1,0 +1,92 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ntcore-monitoring
+data:
+  monitoring.yml: |
+    monitoring:
+      provider:
+        type: cloudwatch
+        config: 
+          region: 'cn-northwest-1'
+          accessKeyId:
+          secretAccessKey:
+    database:
+      provider:
+        type: sqlite
+        path: data/db/ntcore.db
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntcore-monitoring
+
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8180
+      targetPort: 8180
+  selector:
+    app: ntcore-monitoring
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: default
+  name: ntcore-monitoring
+  labels:
+    app: ntcore-monitoring
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ntcore-monitoring
+  template:
+    metadata:
+      labels:
+        app: ntcore-monitoring
+    spec:
+      volumes:
+        - name: ntcore-monitoring
+          configMap:
+            name: ntcore-monitoring
+      containers:
+        - name: ntcore-monitoring
+          image: ntcore/monitoring:latest
+          ports:
+            - name: web
+              containerPort: 8180
+          volumeMounts:
+            - name: ntcore-monitoring
+              mountPath: /usr/src/app/app-config
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ntcore-monitoring-ingress-route
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/dsp/console/monitoring`)
+      kind: Rule
+      services:
+      - name: ntcore-monitoring
+        port: 8180
+    - match: PathPrefix(`/dsp/monitoring`)
+      kind: Rule
+      services:
+      - name: ntcore-monitoring
+        port: 8180
+    - match: PathPrefix(`/dsp/api/v{[0-9]+}/monitoring`)
+      kind: Rule
+      services:
+      - name: ntcore-monitoring
+        port: 8180

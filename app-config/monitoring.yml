@@ -1,0 +1,35 @@
+###################################
+## NTCore monitoring docker config
+###################################
+database:
+  provider:
+    type: sqlite
+    path: data/db/ntcore.db
+
+# database:
+  # provider: 
+  #   type: postgres
+  #   config: 
+  #     host: localhost
+  #     port: 5432
+  #     user: postgres
+  #     database: postgres
+  #     password: ntcore
+
+monitoring:
+  provider:
+    type: timescale
+    config:
+      host: timescaledb
+      port: 5432
+      user: postgres
+      database: postgres
+      password: password
+
+# monitoring:
+  # provider:
+  #   type: cloudwatch
+  #   config: 
+  #     region: 'cn-northwest-1'
+  #     accessKeyId:
+  #     secretAccessKey:

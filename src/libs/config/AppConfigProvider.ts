@@ -1,29 +1,11 @@
-import { 
-    ProviderType, 
-    ProviderTypeMapping, 
-    DatabaseType, 
-    DatabaseTypeMapping, 
-    MonitoringProviderType, 
-    CloudWatcTypeMapping 
-} from '../../commons/ProviderType';
+import { DatabaseType, DatabaseTypeMapping, MonitoringProviderType, CloudWatcTypeMapping } from '../../commons/ProviderType';
 import yaml = require('js-yaml');
 import fs = require('fs');
 
 /**
- * Container setup in AppConfig.
- */
-class AppConfigContainer 
-{
-    provider: ProviderType;
-    namespace?: string;
-    region?: string;
-    accessKeyId?: string;
-    secretAccessKey?: string;
-}
-/**
  * Database setup in AppConfig.
  */
-class AppConfigDatabase 
+class AppConfigDatabase
 {
     provider: DatabaseType;
     path?: string;
@@ -68,22 +50,8 @@ export class CloudWatchConfig
  */
 class AppConfig 
 {
-    container: AppConfigContainer;
     database: AppConfigDatabase;
     monitoring: AppConfigMonitoring
-}
-
-function getContainerProviderConfig(config: any): AppConfigContainer 
-{
-    const providerConfig = config['container'].provider;
-    const provider = ProviderTypeMapping[providerConfig.type];
-    switch(provider) {
-        case ProviderType.KUBERNETES: return { provider: provider, namespace: providerConfig.namespace };
-        case ProviderType.DOCKER: return { provider: provider };
-        case ProviderType.AWSBATCH: return { provider: provider, region: providerConfig.region, accessKeyId: providerConfig.accessKeyId, secretAccessKey: providerConfig.secretAccessKey };
-        case ProviderType.AWSECS: return { provider: provider, region: providerConfig.region, accessKeyId: providerConfig.accessKeyId, secretAccessKey: providerConfig.secretAccessKey };
-        default: throw new Error("Invalid container provider");
-    }
 }
 
 function getDatabtaseProviderConfig(config: any): AppConfigDatabase 
@@ -152,9 +120,8 @@ function getCloudWatchConfig(provider: MonitoringProviderType, config: any): App
 
 function getAppConfig(): AppConfig 
 {
-    const config = yaml.load(fs.readFileSync('app-config/ntcore.yml', 'utf8'));
+    const config = yaml.load(fs.readFileSync('app-config/monitoring.yml', 'utf8'));
     return { 
-        container: getContainerProviderConfig(config),
         database: getDatabtaseProviderConfig(config),
         monitoring: getMonitoringProviderConfig(config),
     };

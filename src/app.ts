@@ -1,8 +1,8 @@
 import { Routes } from "./routes/endpoints";
 import { appConfig } from './libs/config/AppConfigProvider';
 import { initialize } from "./libs/config/AppModule";
-import * as express from "express";
 import * as bodyParser from "body-parser";
+import * as express from "express";
 import * as path from "path";
 
 export class App 
@@ -18,6 +18,8 @@ export class App
     }
 
     private config(): void {
+      // support application/json type post data
+      this.app.use(bodyParser.json({limit: '50mb'}));
       // config js/css route
       this.app.use('/dsp/monitoring', express.static(path.join(__dirname, '/../webapp/build')));
       // config html route
@@ -27,7 +29,7 @@ export class App
       // Listen to port
       const PORT = 8180;
       initialize().then(() => {
-        this.app.listen(PORT, () => console.log(`NTCore Monitoring is running with ${appConfig.container.provider} provider`));
+        this.app.listen(PORT, () => console.log(`NTCore Monitoring is running with ${appConfig.monitoring.provider} provider`));
       });
     }
 }

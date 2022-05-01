@@ -4,9 +4,9 @@ kind: ClusterConfig
 
 metadata:
   name: ntcore
-  region: cn-north-1
+  region: cn-northwest-1
 
 nodeGroups:
-  - name: prod
-    instanceType: m5.large
+  - name: beta
+    instanceType: t4g.medium
     desiredCapacity: 1
