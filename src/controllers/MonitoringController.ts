@@ -61,7 +61,7 @@ export class MonitoringController {
      * @param res Response object.
      * Example: curl -X POST \
      *      -H "Content-Type: application/json" \
-     *      -d '{"workspaceId": "C123", "inputData": "1", "groundTruth": "2", "value": 1.0 ,"timestamp": 1650426681000}' \
+     *      -d '{"workspaceId": "C123", "inputData": "1", "groundTruth": "2","timestamp": 1650426681000}' \
      *      localhost:8180/dsp/api/v1/monitoring/performances
      */
     public async uploadGroundTruth(

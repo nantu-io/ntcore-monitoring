@@ -20,6 +20,7 @@ export class App
     private config(): void {
       // support application/json type post data
       this.app.use(bodyParser.json({limit: '50mb'}));
+      this.app.use(bodyParser.urlencoded({limit: '50mb'}));
       // config js/css route
       this.app.use('/dsp/monitoring', express.static(path.join(__dirname, '/../webapp/build')));
       // config html route
