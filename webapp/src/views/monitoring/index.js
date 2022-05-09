@@ -18,8 +18,8 @@ class Monitoring extends React.Component {
             mode: null,
             loading: false,
             rowsSelected: [],
-            // rows: [['test', 'C123', 'test', 'ntcore', '2021-01-01 10:30:00']],
-            rows: []
+            rows: [['test', 'C123', 'test', 'ntcore', '2021-01-01 10:30:00']],
+            // rows: []
         };
         this._createHyperLink = this._createHyperLink.bind(this);
         this._getColumns = this._getColumns.bind(this);
