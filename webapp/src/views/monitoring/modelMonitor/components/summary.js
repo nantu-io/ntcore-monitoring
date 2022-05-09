@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Box, Card, CardContent } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 
 const PrimaryDataDisplay = (props) => {
     return (
@@ -63,15 +63,13 @@ const SecondaryDataDisplay = (props) => {
 
 export default function Summary(props) {
     return (
-        <Card>
-            <CardContent display="flex">
-                <Typography sx={{ fontSize: 28 }}>Summary</Typography>
-                <PrimaryDataDisplay />
-                <SecondaryDataDisplay title="Accuracy" value={0.761} />
-                <SecondaryDataDisplay title="Precision" value={0.779} />
-                <SecondaryDataDisplay title="Recall" value={0.253} />
-                <SecondaryDataDisplay title="F1 Score" value={0.382} />
-            </CardContent>
-        </Card>
+        <div>
+            <Typography sx={{ fontSize: 28 }}>Summary</Typography>
+            <PrimaryDataDisplay />
+            <SecondaryDataDisplay title="Accuracy" value={0.761} />
+            <SecondaryDataDisplay title="Precision" value={0.779} />
+            <SecondaryDataDisplay title="Recall" value={0.253} />
+            <SecondaryDataDisplay title="F1 Score" value={0.382} />
+        </div>
     )
 }
