@@ -48,15 +48,27 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
             MetricName: context.name,
             StartTime: context.startTime ? new Date(context.startTime) : moment().subtract(1, 'days').toDate(),
             EndTime: context.endTime ? new Date(context.endTime) : new Date(),
-            Period: 60,
-            Statistics: ['Average']
+            Period: context.period ? Math.floor(context.period * 60) : 300, // seconds
+            Statistics: [ this.getStatistics(context.statistics) ]
         });
         const cloudWatchResponse = await this._cloudWatchClient.send(command);
         const metrics = cloudWatchResponse.Datapoints.map(d => {
-            return {name: context.name, value: d.Average, workspaceId: context.workspaceId, timestamp: d.Timestamp.getTime()
-        }});
+            return {name: context.name, value: d.Average, workspaceId: context.workspaceId, timestamp: d.Timestamp.getTime()}
+        });
 
         return metrics;
+    }
+
+    private getStatistics(statistics: string): string
+    {
+        switch(statistics) {
+            case "average"  : return "Average";
+            case "maximum"  : return "Maximum";
+            case "minimum"  : return "Minimum";
+            case "sum"      : return "Sum";
+            case "count"    : return "SampleCount";
+            default         : return "Average";
+        }
     }
 
     /**

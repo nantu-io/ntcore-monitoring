@@ -8,12 +8,13 @@ import {
     PERFORMANCES_INITIALIZATION,
     PERFORMANCES_HYPERTABLE_INITIALIZATION,
     METRIC_CREATE,
-    METRIC_READ_WITH_RANGE,
-    METRIC_READ_WITH_START_TIME,
-    METRIC_READ_WITH_END_TIME,
-    METRIC_READ_WITHOUT_RANGE,
-    PERFORMANCE_CREATE
+    METRIC_READ_AVG,
+    METRIC_READ_MAX,
+    METRIC_READ_MIN,
+    METRIC_READ_SUM,
+    METRIC_READ_COUNT,
 } from "./TimeSeriesQueries";
+import { IllegalArgumentException } from '../../../commons/Errors';
 
 const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
@@ -54,18 +55,24 @@ export default class TimescaleMonitoringProvider implements MonitoringProvider
      */
     public async query(context: MetricQueryContext): Promise<Metric[]>
     {
-        if (context.startTime && context.endTime) {
-            const formattedStartTime = this.formatDateTime(context.startTime);
-            const formattedEndTime = this.formatDateTime(context.endTime);
-            return (await this._pool.query(METRIC_READ_WITH_RANGE, [context.workspaceId, context.name, formattedStartTime, formattedEndTime])).rows;
-        } else if (context.startTime) {
-            const formattedStartTime = this.formatDateTime(context.startTime);
-            return (await this._pool.query(METRIC_READ_WITH_START_TIME, [context.workspaceId, context.name, formattedStartTime])).rows;
-        } else if (context.endTime) {
-            const formattedEndTime = this.formatDateTime(context.endTime);
-            return (await this._pool.query(METRIC_READ_WITH_END_TIME, [context.workspaceId, context.name, formattedEndTime])).rows;
+        const query = this.getQueryForStats(context.statistics)
+            .replace("$PERIOD", context.period ? Math.floor(context.period).toString() : "5")
+            .replace("$START_TIME", context.startTime ? this.formatDateTime(context.startTime) : "")
+            .replace("$END_TIME", context.startTime ? this.formatDateTime(context.endTime) : "");
+        
+        return (await this._pool.query(query, [context.workspaceId, context.name])).rows;
+    }
+
+    private getQueryForStats(statistics: string): string
+    {
+        switch(statistics) {
+            case "average"  : return METRIC_READ_AVG;
+            case "maximum"  : return METRIC_READ_MAX;
+            case "minimum"  : return METRIC_READ_MIN;
+            case "sum"      : return METRIC_READ_SUM;
+            case "count"    : return METRIC_READ_COUNT;
+            default         : return METRIC_READ_AVG;;
         }
-        return (await this._pool.query(METRIC_READ_WITHOUT_RANGE, [context.workspaceId, context.name])).rows;
     }
 
     /**

@@ -20,7 +20,7 @@ monitoring:
   provider:
     type: timescale
     config:
-      host: timescaledb
+      host: localhost
       port: 5432
       user: postgres
       database: postgres

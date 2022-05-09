@@ -14,6 +14,8 @@ export class MetricQueryContext
     name: string;
     startTime: number;
     endTime: number;
+    period?: number; // minutes
+    statistics?: "average" | "maximum" | "minimum" | "sum" | "count"
 }
 /**
  * Ground Truth Upload Context.
@@ -33,6 +35,7 @@ export class Metric
     name: string;
     value: number;
     workspaceId: string;
+    unit?: string;
     timestamp?: number;
 }
 /**

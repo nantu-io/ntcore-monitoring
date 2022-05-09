@@ -35,40 +35,53 @@ export const METRIC_CREATE = `
     INSERT INTO metrics (workspace_id, name, value, timestamp) 
     VALUES ($1, $2, $3, $4);`;
 /**
- * Query to read metric lines with all time.
- */
-export const METRIC_READ_WITHOUT_RANGE = `
-    SELECT name, value, timestamp
-    FROM metrics 
-    WHERE workspace_id = $1 AND name = $2
-    ORDER BY timestamp`;
-/**
- * Query to read metric lines with start time.
- */
-export const METRIC_READ_WITH_START_TIME = `
-    SELECT name, value, timestamp
-    FROM metrics 
-    WHERE workspace_id = $1 AND name = $2 AND timestamp >= $3
-    ORDER BY timestamp;`;
-/**
- * Query to read metric lines with end time.
- */
-export const METRIC_READ_WITH_END_TIME = `
-    SELECT name, value, timestamp
-    FROM metrics 
-    WHERE workspace_id = $1 AND name = $2 AND timestamp < $3
-    ORDER BY timestamp;`;
-/**
- * Query to read metric lines with specific range.
- */
-export const METRIC_READ_WITH_RANGE = `
-    SELECT name, value, timestamp
-    FROM metrics 
-    WHERE workspace_id = $1 AND name = $2 AND timestamp >= $3 AND timestamp < $4
-    ORDER BY timestamp;`;
-/**
  * Query to create performance line.
  */
 export const PERFORMANCE_CREATE = `
     INSERT INTO performances (workspace_id, input_data, ground_truth, prediction, timestamp) 
     VALUES ($1, $2, $3, $4, $5);`;
+/**
+ * Query to read metric lines with specific range.
+ */
+export const METRIC_READ_AVG = `
+    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, AVG(value) as value
+    FROM metrics
+    WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
+    GROUP BY period
+    ORDER BY period;`;
+/**
+ * Query to read metric lines with specific range.
+ */
+export const METRIC_READ_MAX = `
+    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, MAX(value) as value
+    FROM metrics
+    WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
+    GROUP BY period
+    ORDER BY period;`;
+/**
+ * Query to read metric lines with specific range.
+ */
+export const METRIC_READ_MIN = `
+    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, MIN(value) as value
+    FROM metrics
+    WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
+    GROUP BY period
+    ORDER BY period;`;
+/**
+ * Query to read metric lines with specific range.
+ */
+export const METRIC_READ_SUM = `
+    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, SUM(value) as value
+    FROM metrics
+    WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
+    GROUP BY period
+    ORDER BY period;`;
+/**
+ * Query to read metric lines with specific range.
+ */
+export const METRIC_READ_COUNT = `
+    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, COUNT(*) as value
+    FROM metrics
+    WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
+    GROUP BY period
+    ORDER BY period;`;
