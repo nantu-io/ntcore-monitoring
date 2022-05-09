@@ -44,44 +44,44 @@ export const PERFORMANCE_CREATE = `
  * Query to read metric lines with specific range.
  */
 export const METRIC_READ_AVG = `
-    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, AVG(value) as value
+    SELECT time_bucket('$PERIOD minutes', timestamp) AS bucket, AVG(value) as value
     FROM metrics
     WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
-    GROUP BY period
-    ORDER BY period;`;
+    GROUP BY bucket
+    ORDER BY bucket;`;
 /**
  * Query to read metric lines with specific range.
  */
 export const METRIC_READ_MAX = `
-    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, MAX(value) as value
+    SELECT time_bucket('$PERIOD minutes', timestamp) AS bucket, MAX(value) as value
     FROM metrics
     WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
-    GROUP BY period
-    ORDER BY period;`;
+    GROUP BY bucket
+    ORDER BY bucket;`;
 /**
  * Query to read metric lines with specific range.
  */
 export const METRIC_READ_MIN = `
-    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, MIN(value) as value
+    SELECT time_bucket('$PERIOD minutes', timestamp) AS bucket, MIN(value) as value
     FROM metrics
     WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
-    GROUP BY period
-    ORDER BY period;`;
+    GROUP BY bucket
+    ORDER BY bucket;`;
 /**
  * Query to read metric lines with specific range.
  */
 export const METRIC_READ_SUM = `
-    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, SUM(value) as value
+    SELECT time_bucket('$PERIOD minutes', timestamp) AS bucket, SUM(value) as value
     FROM metrics
     WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
-    GROUP BY period
-    ORDER BY period;`;
+    GROUP BY bucket
+    ORDER BY bucket;`;
 /**
  * Query to read metric lines with specific range.
  */
 export const METRIC_READ_COUNT = `
-    SELECT name, time_bucket('$PERIOD minutes', timestamp) AS timestamp, COUNT(*) as value
+    SELECT time_bucket('$PERIOD minutes', timestamp) AS bucket, COUNT(*) as value
     FROM metrics
     WHERE workspace_id = $1 AND name = $2 $START_TIME $END_TIME
-    GROUP BY period
-    ORDER BY period;`;
+    GROUP BY bucket
+    ORDER BY bucket;`;

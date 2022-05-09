@@ -41,14 +41,14 @@ export class BaseMetricsController {
      * Example: curl localhost:8180/dsp/api/v1/monitoring/{workspaceId}/metrics?name=metric&startTime=1650426680000&endTime=1650426682000
      */
     public async queryTimeSeries(
-        req: Request<{workspaceId: string}, {}, {}, {name: string, startTime: number, endTime: number}>, 
-        res: Response)
+        req: Request<{workspaceId: string}, {}, {}, {name: string, startTime: number, endTime: number, statistics: any, period: number}>, 
+        res: Response): Promise<void>
     {
         const { workspaceId } = req.params;
-        const { name, startTime, endTime } = req.query;
+        const { name, startTime, endTime, statistics, period } = req.query;
         try {
             RequestValidator.validateRequest(workspaceId, name);
-            const metrics = await monitoringProvider.query({workspaceId, name, startTime, endTime});
+            const metrics = await monitoringProvider.query({workspaceId, name, startTime, endTime, statistics, period});
             res.status(200).json({ metrics });
         } catch (err) {
             ErrorHandler.handleException(err, res);

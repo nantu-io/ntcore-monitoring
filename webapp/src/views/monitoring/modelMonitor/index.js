@@ -1,11 +1,11 @@
 import React from 'react';
 import BaseLayout from '../../baseLayout';
-import { Container, Tabs, Tab, Box, Typography } from '@material-ui/core';
+import { Tabs, Tab, Box, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import MonitorOverviewTab from './overview';
 import OutLiersTab from './outliers';
 import Performance from './performance';
-import ServiceMetrics from './serviceMatrics';
+import ServiceMetrics from './serviceMetrics';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -67,7 +67,7 @@ export default function ModelMonitor(props) {
           <Performance />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <ServiceMetrics />
+          <ServiceMetrics workspaceId={workspaceId}/>
         </TabPanel>
         <TabPanel value={value} index={3}>
           <OutLiersTab />

@@ -46,7 +46,6 @@ export default function OutLierTab() {
     }
 
     const columns = _getColumns();
-    const options = {};
 
     const rows = createRowData('age', 'input', 75, 18.1, 60.7, 42.5, 0.01, 99);
     return (

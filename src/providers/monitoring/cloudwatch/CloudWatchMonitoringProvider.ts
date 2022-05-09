@@ -1,5 +1,5 @@
 import { MonitoringProvider, Metric, MetricQueryContext, GroundTruthUploadContext } from '../MonitoringProvider';
-import { CloudWatchClient, PutMetricDataCommand, GetMetricStatisticsCommand } from '@aws-sdk/client-cloudwatch';
+import { CloudWatchClient, PutMetricDataCommand, GetMetricStatisticsCommand, Datapoint } from '@aws-sdk/client-cloudwatch';
 import * as moment from 'moment';
 
 export default class CloudWatchMonitoringProvider implements MonitoringProvider
@@ -49,17 +49,17 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
             StartTime: context.startTime ? new Date(context.startTime) : moment().subtract(1, 'days').toDate(),
             EndTime: context.endTime ? new Date(context.endTime) : new Date(),
             Period: context.period ? Math.floor(context.period * 60) : 300, // seconds
-            Statistics: [ this.getStatistics(context.statistics) ]
+            Statistics: [ this.getStatName(context.statistics) ]
         });
         const cloudWatchResponse = await this._cloudWatchClient.send(command);
         const metrics = cloudWatchResponse.Datapoints.map(d => {
-            return {name: context.name, value: d.Average, workspaceId: context.workspaceId, timestamp: d.Timestamp.getTime()}
+            return {name: context.name, value: this.getStatValue(context.statistics, d), workspaceId: context.workspaceId, timestamp: d.Timestamp.getTime()}
         });
 
         return metrics;
     }
 
-    private getStatistics(statistics: string): string
+    private getStatName(statistics: string): string
     {
         switch(statistics) {
             case "average"  : return "Average";
@@ -68,6 +68,18 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
             case "sum"      : return "Sum";
             case "count"    : return "SampleCount";
             default         : return "Average";
+        }
+    }
+
+    private getStatValue(statistics: string, datapoint: Datapoint): number
+    {
+        switch(statistics) {
+            case "average"  : return datapoint.Average;
+            case "maximum"  : return datapoint.Maximum;
+            case "minimum"  : return datapoint.Minimum;
+            case "sum"      : return datapoint.Sum;
+            case "count"    : return datapoint.SampleCount;
+            default         : return datapoint.Average;
         }
     }
 

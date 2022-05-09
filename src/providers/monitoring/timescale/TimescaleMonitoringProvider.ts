@@ -1,6 +1,5 @@
-import { MonitoringProvider, Metric, Prediction, MetricQueryContext, GroundTruthUploadContext } from '../MonitoringProvider';
+import { MonitoringProvider, Metric, MetricQueryContext, GroundTruthUploadContext } from '../MonitoringProvider';
 import { Pool } from "pg";
-import axios from 'axios';
 import * as moment from 'moment';
 import {
     METRICS_INITIALIZATION,
@@ -14,7 +13,6 @@ import {
     METRIC_READ_SUM,
     METRIC_READ_COUNT,
 } from "./TimeSeriesQueries";
-import { IllegalArgumentException } from '../../../commons/Errors';
 
 const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
@@ -57,10 +55,11 @@ export default class TimescaleMonitoringProvider implements MonitoringProvider
     {
         const query = this.getQueryForStats(context.statistics)
             .replace("$PERIOD", context.period ? Math.floor(context.period).toString() : "5")
-            .replace("$START_TIME", context.startTime ? this.formatDateTime(context.startTime) : "")
-            .replace("$END_TIME", context.startTime ? this.formatDateTime(context.endTime) : "");
+            .replace("$START_TIME", context.startTime ? `AND timestamp >= '${this.formatDateTime(context.startTime)}'` : "")
+            .replace("$END_TIME", context.endTime ? ` AND timestamp < '${this.formatDateTime(context.endTime)}'` : "");
         
-        return (await this._pool.query(query, [context.workspaceId, context.name])).rows;
+        const rows = (await this._pool.query(query, [context.workspaceId, context.name])).rows;
+        return rows.map(r => { return { workspaceId: context.workspaceId, name: context.name, value: r.value, timestamp: r.bucket } });
     }
 
     private getQueryForStats(statistics: string): string

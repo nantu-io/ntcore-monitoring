@@ -7,8 +7,6 @@ import CardLayout from '../components/cardLayout';
 import { Grid } from '@material-ui/core';
 import DateTimeRangePicker from '../components/dateTimeRangePicker';
 
-
-
 const useStyles = makeStyles(() => ({
     root: {
       width: '100%',

@@ -39,23 +39,22 @@ export default function MonitorOverviewTable(props)
         return fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/metrics`, { name, startTime, endTime });
     }
 
-    const getLastTenMinuteData = () => {
+    const getLastTenMinuteData = async () => {
         const startTime = moment().subtract(10, 'minutes').format('x');
         const endTime = moment().format('x');
         const name = "test";
-        return getRangeData(workspaceId, name, startTime, endTime).then(res => {
-            const data = (res.data?.metrics ?? []).map(dp => ({
-                ...dp,
-                time: moment(dp.time).format('LTS')
-            }));
-            setTimeData(data);
-        });
+        const res = await getRangeData(workspaceId, name, startTime, endTime);
+        const data = (res.data?.metrics ?? []).map(dp => ({
+            value: dp.value,
+            timestamp: moment(dp.timestamp).format('x')
+        }));
+        setTimeData(data);
     }
 
     useEffect(() => {
         const timer = setInterval(() => getLastTenMinuteData(), fetchInterval * 1000);
         return () => clearInterval(timer);
-    }, []);  
+    });  
 
     return (
         <div>
