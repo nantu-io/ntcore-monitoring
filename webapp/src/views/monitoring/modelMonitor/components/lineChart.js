@@ -48,7 +48,7 @@ export default function LineChart({ data, title }) {
         setDisplay({ 
             datasets: [{
                 data: displayData,
-                label: 'Prediction',
+                label: title,
                 borderColor: 'rgb(87, 148, 247)',
                 tension: 0.1,
             }],

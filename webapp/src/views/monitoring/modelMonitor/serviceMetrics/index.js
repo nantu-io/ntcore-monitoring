@@ -35,6 +35,9 @@ export default function ServiceMetricsTab(props)
     const [latency, setLatency] = useState([]);
     const [volume, setVolume] = useState([]);
     const [errorCount, setErrorCount] = useState([]);
+    const [cpu, setCpu] = useState([]);
+    const [memoryUsed, setMemoryUsed] = useState([]);
+    const [bytesRecv, setBytesRecv] = useState([]);
 
     const fetchMetrics = (workspaceId, name, startTime, endTime, statistics) => {
         return fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/metrics`, { name, startTime, endTime, statistics });
@@ -55,6 +58,9 @@ export default function ServiceMetricsTab(props)
         setMetric('Latency', 'average', setLatency);
         setMetric('Latency', 'count', setVolume);
         setMetric('Error', 'count', setErrorCount);
+        setMetric('Cpu', 'average', setCpu);
+        setMetric('MemoryUsed', 'average', setMemoryUsed);
+        setMetric('BytesRecv', 'average', setBytesRecv);
     }, []);
 
     return (
@@ -81,19 +87,19 @@ export default function ServiceMetricsTab(props)
                         <LineChart data={errorCount} title={'Error'}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <LineChart data={[]} title={'Prediction Volume'}/>
+                        <LineChart data={[]} title={'Availability'}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <LineChart data={[]} title={'Prediction Latency'}/>
+                        <LineChart data={cpu} title={'CPU'}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <LineChart data={[]} title={'Prediction Error'}/>
+                        <LineChart data={[]} title={'GPU'}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <LineChart data={[]} title={'Prediction Volume'}/>
+                        <LineChart data={memoryUsed} title={'Memory'}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <LineChart data={[]} title={'Prediction Latency'}/>
+                        <LineChart data={bytesRecv} title={'Network'}/>
                     </Grid>
                 </Grid>
             </CardLayout>
