@@ -46,8 +46,8 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
         const command = new GetMetricStatisticsCommand({
             Namespace: context.workspaceId,
             MetricName: context.name,
-            StartTime: context.startTime ? new Date(context.startTime) : moment().subtract(1, 'days').toDate(),
-            EndTime: context.endTime ? new Date(context.endTime) : new Date(),
+            StartTime: context.startTime ? new Date(Number(context.startTime)) : moment().subtract(1, 'days').toDate(),
+            EndTime: context.endTime ? new Date(Number(context.endTime)) : new Date(),
             Period: context.period ? Math.floor(context.period * 60) : 300, // seconds
             Statistics: [ this.getStatName(context.statistics) ]
         });

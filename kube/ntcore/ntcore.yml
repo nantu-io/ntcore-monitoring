@@ -8,7 +8,8 @@ data:
     container:
       provider:
         type: kubernetes
-        namespace: default
+        config:
+          namespace: default
     database:
       provider:
         type: sqlite

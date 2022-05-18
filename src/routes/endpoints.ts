@@ -17,7 +17,9 @@ export class Routes
     {
         app.route('/dsp/api/v1/monitoring/metrics')
             .post(this.baseMetricsController.writeTimeSeries);
-        app.route('/dsp/api/v1/monitoring/performances')
+        app.route('/dsp/api/v1/monitoring/:workspaceId/metrics')
+            .post(this.baseMetricsController.writeTimeSeries);
+        app.route('/dsp/api/v1/monitoring/:workspaceId/performances')
             .post(this.performanceMetricsController.uploadGroundTruth)
         app.route('/dsp/api/v1/monitoring/:workspaceId/metrics')
             .get(this.baseMetricsController.queryTimeSeries);
