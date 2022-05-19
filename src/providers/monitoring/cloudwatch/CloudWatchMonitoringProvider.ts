@@ -54,7 +54,7 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
         const cloudWatchResponse = await this._cloudWatchClient.send(command);
         const metrics = cloudWatchResponse.Datapoints.map(d => {
             return {name: context.name, value: this.getStatValue(context.statistics, d), workspaceId: context.workspaceId, timestamp: d.Timestamp.getTime()}
-        });
+        }).sort((m1, m2) => m1.timestamp - m2.timestamp);
 
         return metrics;
     }
