@@ -10,6 +10,10 @@ data:
         type: kubernetes
         config:
           namespace: default
+      images:
+        sklearn: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/fast-sklearn
+        tensorflow: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/tensorflow-serving
+        pytorch: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/fast-torch
     database:
       provider:
         type: sqlite

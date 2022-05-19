@@ -8,5 +8,8 @@ metadata:
 
 nodeGroups:
   - name: beta
-    instanceType: t4g.medium
+    instanceType: t3.medium
     desiredCapacity: 1
+    iam:
+      attachPolicyARNs:
+        - arn:aws-cn:iam::aws:policy/CloudWatchFullAccess

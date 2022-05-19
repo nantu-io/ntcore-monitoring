@@ -58,6 +58,7 @@ spec:
       containers:
         - name: ntcore-monitoring
           image: ntcore/monitoring:latest
+          imagePullPolicy: Always
           ports:
             - name: web
               containerPort: 8180

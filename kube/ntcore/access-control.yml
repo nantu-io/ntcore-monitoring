@@ -32,6 +32,15 @@ rules:
       - list
       - create
       - update
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - middlewares
+    verbs:
+      - get
+      - list
+      - create
+      - update
 
 ---
 kind: RoleBinding
