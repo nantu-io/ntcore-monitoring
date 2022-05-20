@@ -6,6 +6,7 @@ import MonitorOverviewTab from './overview';
 import OutLiersTab from './outliers';
 import Performance from './performance';
 import ServiceMetrics from './serviceMetrics';
+import LogEventsDisplay from './logging';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -58,6 +59,8 @@ export default function ModelMonitor(props) {
             <Tab label="Performance" {...a11yProps(1)} />
             <Tab label="Service Metrics" {...a11yProps(2)} />
             <Tab label="Outliers" {...a11yProps(3)} />
+            <Tab label="Data Drifts" {...a11yProps(4)} />
+            <Tab label="Logs" {...a11yProps(5)} />
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
@@ -71,6 +74,11 @@ export default function ModelMonitor(props) {
         </TabPanel>
         <TabPanel value={value} index={3}>
           <OutLiersTab />
+        </TabPanel>
+        <TabPanel value={value} index={4}>
+        </TabPanel>
+        <TabPanel value={value} index={5}>
+          <LogEventsDisplay/>
         </TabPanel>
       </div>
     </BaseLayout>

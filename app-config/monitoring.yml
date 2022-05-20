@@ -27,9 +27,17 @@ monitoring:
       password: password
 
 # monitoring:
-  # provider:
-  #   type: cloudwatch
-  #   config: 
-  #     region: 'cn-northwest-1'
-  #     accessKeyId:
-  #     secretAccessKey:
+#   provider:
+#     type: cloudwatch
+#     config: 
+#       region: 'cn-northwest-1'
+#       accessKeyId: AKIA5RDDQUFZBJYI4IEE
+#       secretAccessKey: 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
+
+logging:
+  provider:
+    type: cloudwatch
+    config: 
+      region: 'cn-northwest-1'
+      accessKeyId:
+      secretAccessKey:
