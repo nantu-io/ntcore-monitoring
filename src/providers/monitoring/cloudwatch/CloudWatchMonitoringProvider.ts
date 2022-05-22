@@ -11,7 +11,7 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
         this._cloudWatchClient = cloudWatchClient;
     }
 
-    public async initialize(): Promise<void>
+    public async provision(): Promise<void>
     {
 
     }

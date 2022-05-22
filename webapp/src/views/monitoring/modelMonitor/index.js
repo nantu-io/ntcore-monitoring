@@ -78,7 +78,7 @@ export default function ModelMonitor(props) {
         <TabPanel value={value} index={4}>
         </TabPanel>
         <TabPanel value={value} index={5}>
-          <LogEventsDisplay/>
+          <LogEventsDisplay workspaceId={workspaceId}/>
         </TabPanel>
       </div>
     </BaseLayout>

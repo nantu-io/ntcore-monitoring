@@ -1,5 +1,5 @@
 import { CloudWatchClient } from "@aws-sdk/client-cloudwatch";
-import { appConfig, CloudWatchConfig } from "../../config/AppConfigProvider";
+import { appConfig, AWSClientConfig } from "../../config/AppConfigProvider";
 
 export default class MonitoringClientProvider 
 {
@@ -10,7 +10,7 @@ export default class MonitoringClientProvider
 
     public static get(): CloudWatchClient
     {
-        const cloudwatchConfig = appConfig.monitoring.config as CloudWatchConfig
+        const cloudwatchConfig = appConfig.monitoring.config as AWSClientConfig
         return this._client || (this._client = new CloudWatchClient(cloudwatchConfig));
     }
 }

@@ -13,3 +13,5 @@ nodeGroups:
     iam:
       attachPolicyARNs:
         - arn:aws-cn:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws-cn:iam::aws:policy/AmazonKinesisFullAccess
+        - arn:aws-cn:iam::aws:policy/AmazonDynamoDBFullAccess

@@ -17,3 +17,8 @@ export class IllegalArgumentException extends Error
 {
     
 }
+
+export class InternalServiceErrorException extends Error
+{
+    
+}

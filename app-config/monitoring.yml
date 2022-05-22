@@ -18,26 +18,34 @@ database:
 
 monitoring:
   provider:
-    type: timescale
-    config:
-      host: timescaledb
-      port: 5432
-      user: postgres
-      database: postgres
-      password: password
+    type: cloudwatch
+    config: 
+      region: 'cn-northwest-1'
+      accessKeyId: 
+      secretAccessKey: 
 
 # monitoring:
 #   provider:
-#     type: cloudwatch
-#     config: 
-#       region: 'cn-northwest-1'
-#       accessKeyId: AKIA5RDDQUFZBJYI4IEE
-#       secretAccessKey: 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
+#     type: timescale
+#     config:
+#       host: timescaledb
+#       port: 5432
+#       user: postgres
+#       database: postgres
+#       password: password
 
 logging:
   provider:
     type: cloudwatch
+    group: /ntcore/monitoring/dev
     config: 
+      region: 'cn-northwest-1'
+      accessKeyId:
+      secretAccessKey:
+  streamProvider:
+    type: kinesis
+    name: log-event-stream-dev
+    config:
       region: 'cn-northwest-1'
       accessKeyId:
       secretAccessKey:

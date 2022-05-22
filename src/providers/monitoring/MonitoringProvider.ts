@@ -51,10 +51,10 @@ export interface Prediction
 
 export interface MonitoringProvider 
 {
-     /**
+    /**
      * Initialize required resource.
      */
-    initialize: () => Promise<void>;
+    provision: () => Promise<void>;
     /**
      * Write to time series db
      */

@@ -25,7 +25,7 @@ export default class TimescaleMonitoringProvider implements MonitoringProvider
         this._pool = pool;
     }
 
-    public async initialize(): Promise<void>
+    public async provision(): Promise<void>
     {
         await this._pool.query(METRICS_INITIALIZATION);
         await this._pool.query(METRICS_HYPERTABLE_INITIALIZATION);

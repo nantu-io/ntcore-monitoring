@@ -1,37 +1,61 @@
-import { LogEventsProvider, LogEvent } from '../LogEventsProvider';
-import { CloudWatchLogsClient } from "@aws-sdk/client-cloudwatch-logs";
+import { LogEventsProvider, LogEvent, LogEventQueryContext } from '../LogEventsProvider';
+import { CloudWatchLogsClient, FilterLogEventsCommand, CreateLogStreamCommand, DeleteLogStreamCommand } from "@aws-sdk/client-cloudwatch-logs";
+import { KinesisClient, PutRecordCommand } from '@aws-sdk/client-kinesis';
+import { appConfig } from '../../../libs/config/AppConfigProvider';
 
 export default class CloudWatchLogEventsProvider implements LogEventsProvider
 {
     private readonly _cloudWatchClient: CloudWatchLogsClient;
+    private readonly _kinesisClient: KinesisClient;
+    private readonly _textEncoder: TextEncoder;
 
-    public constructor(cloudWatchClient: CloudWatchLogsClient) 
+    public constructor(cloudWatchClient: CloudWatchLogsClient, kinesisClient: KinesisClient) 
     {
         this._cloudWatchClient = cloudWatchClient;
-    }
-
-    public async initialize(): Promise<void>
-    {
-
+        this._kinesisClient = kinesisClient;
+        this._textEncoder = new TextEncoder();
     }
 
     /**
-     * Creates metric line in cloudwatch.
-     * @param event metric object.
-     * @returns input metric object.
+     * Provision cloudwatch resources.
      */
-    public async create(event: LogEvent): Promise<LogEvent>
+    public async provision(): Promise<void>
     {
-        return null;
+        
     }
 
     /**
-     * Retrieves timeseries data for a given metric.
-     * @param context metric query context.
-     * @returns timeseries data.
+     * Puts log event into cloudwatch.
+     * @param workspaceId workspace id
      */
-    public async read(workspaceId: string): Promise<LogEvent[]>
+    public async putEvents(workspaceId: string, event: LogEvent): Promise<void>
     {
-        return [];
+        const logEvent = { ...event, timestamp: event.timestamp ?? Date.now() }
+        const command = new PutRecordCommand({
+            StreamName: appConfig.logging.streamProvider.name,
+            Data: this._textEncoder.encode(JSON.stringify(logEvent)),
+            PartitionKey: workspaceId
+        });
+        await this._kinesisClient.send(command);
+    }
+
+    /**
+     * Searches log events from cloudwatch.
+     * @param context log query context
+     * @returns log events
+     */
+    public async getEvents(context: LogEventQueryContext): Promise<LogEvent[]>
+    {
+        const command = new FilterLogEventsCommand({
+            logGroupName: appConfig.logging.provider.group,
+            logStreamNames: [context.workspaceId],
+            filterPattern: context.queryPattern,
+            startTime: Number(context.startTime),
+            endTime: Number(context.endTime),
+            nextToken: context.nextToken
+        });
+        return (await this._cloudWatchClient.send(command)).events.map(e => {
+            return { workspaceId: e.logStreamName, timestamp: e.timestamp, message: e.message }
+        });
     }
 }

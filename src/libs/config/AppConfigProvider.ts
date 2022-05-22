@@ -2,8 +2,7 @@ import {
     DatabaseType, 
     DatabaseTypeMapping, 
     MonitoringProviderType, 
-    MonitoringProviderTypeMapping, 
-    LogEventsProviderType
+    MonitoringProviderTypeMapping
 } from '../../commons/ProviderType';
 import yaml = require('js-yaml');
 import fs = require('fs');
@@ -29,16 +28,24 @@ class AppConfigDatabase
 class AppConfigMonitoring 
 {
     provider: MonitoringProviderType;
-    config?: TimeseriesDBConfig | CloudWatchConfig;
+    config?: TimeseriesDBConfig | AWSClientConfig;
 }
 /**
  * Monitoring setup in AppConfig.
  */
- class AppConfigLogging
- {
-     provider: LogEventsProviderType;
-     config?: CloudWatchConfig;
- }
+class AppConfigLogging
+{
+    provider: {
+        type: "cloudwatch";
+        group: string;
+        config?: AWSClientConfig;
+    };
+    streamProvider?: {
+        type: "kinesis" | "kafka";
+        name: string;
+        config?: AWSClientConfig;
+    }
+}
 /**
  * Timeseries database setup in AppConfig.
  */
@@ -53,7 +60,7 @@ export class TimeseriesDBConfig
 /**
  * CloudWatch setup in AppConfig.
  */
-export class CloudWatchConfig 
+export class AWSClientConfig 
 {
     region: string;
     accessKeyId: string;
@@ -87,15 +94,6 @@ function getMonitoringProviderConfig(config: any): AppConfigMonitoring
         case MonitoringProviderType.TIMESCALE: return getTimeseriesDBProviderConfig(provider, config);
         case MonitoringProviderType.CLOUDWATCH: return getCloudWatchMetricsConfig(provider, config);
         default: throw new Error("Invalid monitoring provider");
-    }
-}
-
-function getLogEventsProviderConfig(config: any): AppConfigLogging
-{
-    const provider = MonitoringProviderTypeMapping[config['logging'].provider.type];
-    switch(provider) {
-        case LogEventsProviderType.CLOUDWATCH: return getCloudWatchLogEventsConfig(provider, config);
-        default: throw new Error("Invalid log events provider");
     }
 }
 
@@ -142,15 +140,28 @@ function getCloudWatchMetricsConfig(provider: MonitoringProviderType, config: an
     };
 }
 
-function getCloudWatchLogEventsConfig(provider: LogEventsProviderType, config: any): AppConfigLogging
+function getLogEventsProviderConfig(config: any): AppConfigLogging
 {
-    const providerConfig = config['logging'].provider.config;
+    const provider = config['logging'].provider;
+    const streamProvider = config['logging'].streamProvider;
     return { 
-        provider: provider,
-        config: {
-            region: providerConfig.region,
-            accessKeyId: providerConfig.accessKeyId,
-            secretAccessKey: providerConfig.secretAccessKey
+        provider: {
+            type: provider.type,
+            group: provider.group,
+            config: {
+                region: provider.config.region,
+                accessKeyId: provider.config.accessKeyId,
+                secretAccessKey: provider.config.secretAccessKey
+            }
+        },
+        streamProvider: {
+            type: streamProvider.type,
+            name: streamProvider.name,
+            config: {
+                region: streamProvider.config.region,
+                accessKeyId: streamProvider.config.accessKeyId,
+                secretAccessKey: streamProvider.config.secretAccessKey
+            }
         }
     };
 }

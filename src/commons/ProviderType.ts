@@ -94,18 +94,3 @@ export const MonitoringProviderTypeMapping = {
      */
     "cloudwatch": MonitoringProviderType.CLOUDWATCH,
 }
-
-export const enum LogEventsProviderType 
-{
-    /**
-     * AWS CloudWatch
-     */
-    CLOUDWATCH = "CLOUDWATCH",
-}
-
-export const LogEventsProviderTypeMapping = {
-    /**
-     * AWS CloudWatch
-     */
-    "cloudwatch": LogEventsProviderType.CLOUDWATCH,
-}

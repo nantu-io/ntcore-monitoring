@@ -1,0 +1,49 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: log-events-processor
+data:
+  kclpy.properties: |
+    executableName = /amazon-kinesis-client-python/ntcore/log_events_processor.py
+    streamName = log-event-stream-dev
+    applicationName = LogEventsProcessorDev
+    AWSCredentialsProvider = DefaultAWSCredentialsProviderChain
+    processingLanguage = python/3.8
+    initialPositionInStream = TRIM_HORIZON
+    regionName = cn-northwest-1
+  cloudwatch.properties: |
+    [CloudWatch]
+    region = cn-northwest-1
+    logGroup = /ntcore/monitoring/dev
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: default
+  name: log-events-processor
+  labels:
+    app: log-events-processor
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-events-processor
+  template:
+    metadata:
+      labels:
+        app: log-events-processor
+    spec:
+      volumes:
+        - name: log-events-processor
+          configMap:
+            name: log-events-processor
+      containers:
+        - name: log-events-processor
+          imagePullPolicy: Always
+          image: ntcore/log-events-processor:latest
+          volumeMounts:
+            - name: log-events-processor
+              mountPath: /amazon-kinesis-client-python/ntcore/config

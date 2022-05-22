@@ -12,6 +12,21 @@ data:
           region: 'cn-northwest-1'
           accessKeyId:
           secretAccessKey:
+    logging:
+      provider:
+        type: cloudwatch
+        group: /ntcore/monitoring/dev
+        config: 
+          region: 'cn-northwest-1'
+          accessKeyId:
+          secretAccessKey:
+      streamProvider:
+        type: kinesis
+        name: log-event-stream-dev
+        config:
+          region: 'cn-northwest-1'
+          accessKeyId:
+          secretAccessKey:
     database:
       provider:
         type: sqlite

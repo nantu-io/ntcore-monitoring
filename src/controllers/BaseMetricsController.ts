@@ -42,7 +42,7 @@ export class BaseMetricsController {
      */
     public async queryTimeSeries(
         req: Request<{workspaceId: string}, {}, {}, {name: string, startTime: number, endTime: number, statistics: any, period: number}>, 
-        res: Response): Promise<void>
+        res: Response<{metrics: Metric[]}>): Promise<void>
     {
         const { workspaceId } = req.params;
         const { name, startTime, endTime, statistics, period } = req.query;

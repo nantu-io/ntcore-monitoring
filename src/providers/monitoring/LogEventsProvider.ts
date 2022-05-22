@@ -1,50 +1,66 @@
-import { appConfig } from "../../libs/config/AppConfigProvider";
-import { LogEventsProviderType } from "../../commons/ProviderType";
 import CloudWatchClientProvider from "../../libs/client/aws/AWSCloudWatchLogsClientProvider";
 import CloudWatchLogEventsProvider from "./cloudwatch/CloudWatchLogEventsProvider";
+import KinesisClientProvider from "../../libs/client/aws/AWSKinesisClientProvider";
 
+/**
+ * Log event search context.
+ */
+export class LogEventWriteContext
+{
+    workspaceId: string;
+    source: string;
+    events: LogEvent[];
+    sequenceToken?: string;
+}
+
+/**
+ * Log event search context.
+ */
+export class LogEventQueryContext
+{
+    workspaceId: string;
+    startTime: number;
+    endTime: number;
+    queryPattern?: string;
+    nextToken?: string;
+}
 /**
  * Metric Class Definition.
  */
 export class LogEvent 
 {
-    workspaceId: string;
     timestamp: number;
-    content: string;
+    message: string;
 }
 /**
  * Log events provider;
  */
 export interface LogEventsProvider 
 {
-     /**
+    /**
      * Initialize required resource.
      */
-    initialize: () => Promise<void>;
+    provision: () => Promise<void>;
     /**
      * Write to time series db
      */
-    create: (event: LogEvent) => Promise<LogEvent>;
+    putEvents: (workspaceId: string, event: LogEvent) => Promise<void>;
     /**
-     * Query range data
+     * Search log events.
      */
-    read: (workspaceId: string) => Promise<LogEvent[]>;
+    getEvents: (context: LogEventQueryContext) => Promise<LogEvent[]>;
 }
 /**
- * 
+ * Log events provider factory.
  */
 export class LogEventsProviderFactory
 {
     /**
-     * Create a provider for monitoring.
-     * @returns Experiment provider.
+     * Create a provider for log events.
+     * @returns log events provider.
      */
     public createProvider(): LogEventsProvider
     {
-        const providerType: LogEventsProviderType = appConfig.logging.provider;
-        switch(providerType) {
-            case LogEventsProviderType.CLOUDWATCH: return new CloudWatchLogEventsProvider(CloudWatchClientProvider.get());
-            default: throw new Error("Invalid log events provider type");
-        }
+        return new CloudWatchLogEventsProvider(CloudWatchClientProvider.get(), KinesisClientProvider.get());
     }
 }
