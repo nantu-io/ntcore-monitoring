@@ -74,16 +74,19 @@ export default function LogEventsDisplay(props)
         return fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/events`, { startTime, endTime, queryPattern, nextToken });
     }
     const setEventData = async (workspaceId, dateTimeRange, queryPattern, nextToken) => {
-        setIsLoading(true);
         const startTime = dateTimeRange[0]?.valueOf();
         const endTime = dateTimeRange[1]?.valueOf();
-        const res = await fetchEvents(workspaceId, startTime, endTime, queryPattern, nextToken);
-        const data = (res.data?.events ?? []).map(event => ({
-            message: event.message,
-            timestamp: moment(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
-        }));
-        setEvents(data);
-        setIsLoading(false);
+        try {
+            setIsLoading(true);
+            const res = await fetchEvents(workspaceId, startTime, endTime, queryPattern, nextToken);
+            const data = (res.data?.events ?? []).map(event => ({
+                message: event.message,
+                timestamp: moment(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
+            }));
+            setEvents(data);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     useEffect(() => {
