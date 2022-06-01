@@ -41,14 +41,14 @@ export class LogEventsController {
      */
     public async queryLogEvents(
         req: Request<{workspaceId: string}, {}, {}, {startTime: number, endTime: number, queryPattern: string, nextToken: string}>, 
-        res: Response<{events: LogEvent[]}>) : Promise<void>
+        res: Response<{workspaceId: string, events: LogEvent[], nextToken: string}>) : Promise<void>
     {
         const { workspaceId } = req.params;
         const { startTime, endTime, queryPattern, nextToken } = req.query;
         try {
             RequestValidator.validateRequest(workspaceId);
-            const events = await logEventsProvider.getEvents({workspaceId, startTime, endTime, queryPattern, nextToken});
-            res.status(200).json({ events });
+            const result = await logEventsProvider.getEvents({workspaceId, startTime, endTime, queryPattern, nextToken});
+            res.status(200).json({ workspaceId, events: result.events, nextToken: result.nextToken });
         } catch (err) {
             ErrorHandler.handleException(err, res);
         }

@@ -1,5 +1,5 @@
 import { LogEventsProvider, LogEvent, LogEventQueryContext } from '../LogEventsProvider';
-import { CloudWatchLogsClient, FilterLogEventsCommand, CreateLogStreamCommand, DeleteLogStreamCommand } from "@aws-sdk/client-cloudwatch-logs";
+import { CloudWatchLogsClient, FilterLogEventsCommand, DescribeLogStreamsCommand } from "@aws-sdk/client-cloudwatch-logs";
 import { KinesisClient, PutRecordCommand } from '@aws-sdk/client-kinesis';
 import { appConfig } from '../../../libs/config/AppConfigProvider';
 
@@ -44,7 +44,7 @@ export default class CloudWatchLogEventsProvider implements LogEventsProvider
      * @param context log query context
      * @returns log events
      */
-    public async getEvents(context: LogEventQueryContext): Promise<LogEvent[]>
+    public async getEvents(context: LogEventQueryContext): Promise<{events: LogEvent[], nextToken: string}>
     {
         const command = new FilterLogEventsCommand({
             logGroupName: appConfig.logging.provider.group,
@@ -52,10 +52,13 @@ export default class CloudWatchLogEventsProvider implements LogEventsProvider
             filterPattern: context.queryPattern,
             startTime: Number(context.startTime),
             endTime: Number(context.endTime),
-            nextToken: context.nextToken
+            nextToken: context.nextToken,
+            limit: 1000
         });
-        return (await this._cloudWatchClient.send(command)).events.map(e => {
-            return { workspaceId: e.logStreamName, timestamp: e.timestamp, message: e.message }
+        const response = await this._cloudWatchClient.send(command);
+        const events = response.events.map(e => {
+            return { timestamp: e.timestamp, message: e.message }
         });
+        return {events, nextToken: response.nextToken};
     }
 }

@@ -48,7 +48,7 @@ export interface LogEventsProvider
     /**
      * Search log events.
      */
-    getEvents: (context: LogEventQueryContext) => Promise<LogEvent[]>;
+    getEvents: (context: LogEventQueryContext) => Promise<{events: LogEvent[], nextToken: string}>;
 }
 /**
  * Log events provider factory.

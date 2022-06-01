@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { fetchDataWithParamsV1 } from '../../../../global';
 import { DateRangePicker } from 'rsuite';
-import { Table, Row, Col, Input, InputGroup, Grid, Pagination } from 'rsuite';
+import { Table, Row, Col, Input, InputGroup, Grid, Pagination, Button } from 'rsuite';
 import clsx from 'clsx';
 import moment from 'moment';
 import SearchIcon from '@rsuite/icons/Search';
@@ -70,27 +70,34 @@ export default function LogEventsDisplay(props)
         }
     ];
 
-    const fetchEvents = (workspaceId, startTime, endTime, queryPattern, nextToken) => {
-        return fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/events`, { startTime, endTime, queryPattern, nextToken });
+    const fetchEvents = async (workspaceId, startTime, endTime, queryPattern, nextToken) => {
+        const res = await fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/events`, { startTime, endTime, queryPattern, nextToken });
+        const data = (res.data?.events ?? []).map(event => ({
+            message: event.message,
+            timestamp: moment(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
+        }));
+        return [data, res.data?.nextToken]
     }
+
     const setEventData = async (workspaceId, dateTimeRange, queryPattern, nextToken) => {
         const startTime = dateTimeRange[0]?.valueOf();
         const endTime = dateTimeRange[1]?.valueOf();
         try {
             setIsLoading(true);
-            const res = await fetchEvents(workspaceId, startTime, endTime, queryPattern, nextToken);
-            const data = (res.data?.events ?? []).map(event => ({
-                message: event.message,
-                timestamp: moment(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
-            }));
-            setEvents(data);
+            const [fetched, token] = await fetchEvents(workspaceId, startTime, endTime, queryPattern, nextToken);
+            if (nextToken) {
+                setEvents([...events, ...fetched]);
+            } else {
+                setEvents(fetched);
+            }
+            setNextToken(token);
         } finally {
             setIsLoading(false);
         }
     }
 
     useEffect(() => {
-        setEventData(workspaceId, dateTimeRange, queryPattern, nextToken);
+        setEventData(workspaceId, dateTimeRange, queryPattern, null);
     }, []);
 
     return (
@@ -105,11 +112,11 @@ export default function LogEventsDisplay(props)
                             style={{width: 500, marginBottom: 5, marginTop: 5}}
                             onChange={(range) => { 
                                 setDateTimeRange(range);
-                                setEventData(workspaceId, range, queryPattern, nextToken);
+                                setEventData(workspaceId, range, queryPattern, null);
                             }}
                             onClean={() => {
                                 setDateTimeRange([]);
-                                setEventData(workspaceId, [], queryPattern, nextToken);
+                                setEventData(workspaceId, [], queryPattern, null);
                             }}/>
                     </Col>
                     <Col xs={24} sm={12} md={8} style={{width: 800}}>
@@ -117,7 +124,7 @@ export default function LogEventsDisplay(props)
                             <Input onChange={(value) => setQueryPattern(value)}/>
                             <InputGroup.Addon>
                                 <SearchIcon style={{cursor: "pointer"}}
-                                    onClick={() => setEventData(workspaceId, dateTimeRange, queryPattern, nextToken)}/>
+                                    onClick={() => setEventData(workspaceId, dateTimeRange, queryPattern, null)}/>
                             </InputGroup.Addon>
                         </InputGroup>
                     </Col>
@@ -147,6 +154,11 @@ export default function LogEventsDisplay(props)
                 })}
             </Table>
             <div style={{ padding: 20, paddingLeft: 12 }}>
+                <Button 
+                    appearance="link" 
+                    disabled={events.length > 0 && !nextToken}
+                    style={{paddingLeft: 0}}
+                    onClick={() => setEventData(workspaceId, dateTimeRange, queryPattern, nextToken)}>Load more</Button>
                 <Pagination
                     prev
                     next
