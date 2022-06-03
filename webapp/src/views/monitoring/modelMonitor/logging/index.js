@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { fetchDataWithParamsV1 } from '../../../../global';
 import { DateRangePicker } from 'rsuite';
-import { Table, Row, Col, Input, InputGroup, Grid, Pagination, Button } from 'rsuite';
+import { Table, Row, Col, Input, InputGroup, Grid, Pagination, Button, IconButton } from 'rsuite';
+import ReloadIcon from '@rsuite/icons/Reload';
 import clsx from 'clsx';
 import moment from 'moment';
 import SearchIcon from '@rsuite/icons/Search';
@@ -12,7 +13,6 @@ const useStyles = makeStyles((theme) => ({
     root: {
         flexWrap: 'wrap',
         padding: '0px 0px',
-        background: 'white'
     },
     buttonGroup: {
         '& > *': {
@@ -30,21 +30,40 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const rowKey = "id";
 const CompactCell = props => <Table.Cell {...props} style={{ padding: 8, fontSize: 14 }} />;
 const CompactHeaderCell = props => <Table.HeaderCell {...props} style={{ padding: 8 }} />;
-
+const ExpandCell = ({ rowData, dataKey, expandedRowKeys, onChange, ...props }) => (
+    <Table.Cell {...props}>
+      <IconButton
+        size="xs"
+        appearance="subtle"
+        onClick={() => {
+          onChange(rowData);
+        }}
+        icon={
+          expandedRowKeys.some((key) => key === rowData[rowKey]) ? "-" : "+"
+        }
+      />
+    </Table.Cell>
+);
+const renderRowExpanded = (event) => {
+    return (<p style={{fontSize: 14}}>{event.message}</p>);
+};
+  
 export default function LogEventsDisplay(props) 
 {
     const classes = useStyles();
     const { workspaceId } = props;
-    // const [events, setEvents] = useState([{'timestamp': '2022-05-23', message:'hello-world'}]);
+    //const [events, setEvents] = useState([{'id': 1, 'timestamp': '2022-05-23', message:'hello-world'}, {'id': 2, 'timestamp': '2022-05-23', message:'hello-world'}]);
     const [events, setEvents] = useState([]);
     const [queryPattern, setQueryPattern] = useState("");
     const [nextToken, setNextToken] = useState(null);
-    const [limit, setLimit] = React.useState(100);
+    const [limit, setLimit] = React.useState(50);
     const [page, setPage] = React.useState(1);
     const [isLoading, setIsLoading] = React.useState(false);
     const [dateTimeRange, setDateTimeRange] = useState([moment().subtract(1, 'months').toDate(), moment().toDate()]);
+    const [expandedRowKeys, setExpandedRowKeys] = React.useState([]);
     const handleChangeLimit = dataKey => {
         setPage(1);
         setLimit(dataKey);
@@ -66,13 +85,14 @@ export default function LogEventsDisplay(props)
             key: 'message',
             label: 'Message',
             fixed: true,
-            width: 1000
+            width: "82%"
         }
     ];
 
     const fetchEvents = async (workspaceId, startTime, endTime, queryPattern, nextToken) => {
         const res = await fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/events`, { startTime, endTime, queryPattern, nextToken });
-        const data = (res.data?.events ?? []).map(event => ({
+        const data = (res.data?.events ?? []).map((event, index) => ({
+            id: index,
             message: event.message,
             timestamp: moment(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
         }));
@@ -85,16 +105,29 @@ export default function LogEventsDisplay(props)
         try {
             setIsLoading(true);
             const [fetched, token] = await fetchEvents(workspaceId, startTime, endTime, queryPattern, nextToken);
-            if (nextToken) {
-                setEvents([...events, ...fetched]);
-            } else {
-                setEvents(fetched);
-            }
+            if (nextToken) setEvents([...events, ...fetched]);
+            else setEvents(fetched);
             setNextToken(token);
         } finally {
             setIsLoading(false);
         }
     }
+
+    const handleExpanded = (rowData, dataKey) => {
+        var open = false;
+        const nextExpandedRowKeys = [];
+        expandedRowKeys.forEach((key) => {
+          if (key === rowData[rowKey]) {
+            open = true;
+          } else {
+            nextExpandedRowKeys.push(key);
+          }
+        });
+        if (!open) {
+          nextExpandedRowKeys.push(rowData[rowKey]);
+        }
+        setExpandedRowKeys(nextExpandedRowKeys);
+    };
 
     useEffect(() => {
         setEventData(workspaceId, dateTimeRange, queryPattern, null);
@@ -102,14 +135,13 @@ export default function LogEventsDisplay(props)
 
     return (
         <div className={clsx(classes.root)}>
-            <Grid fluid>
+            <Grid fluid style={{padding: 0, marginBottom: 10}}>
                 <Row>
-                    <Col xs={24} sm={12} md={8}>
+                    <Col xs={6} sm={6} md={6}>
                         <DateRangePicker
-                            format="yyyy-MM-dd HH:mm:ss"
+                            format="MM/dd/yyyy HH:mm"
                             cleanable
                             defaultValue={[moment().subtract(1, 'months').toDate(), moment().toDate()]}
-                            style={{width: 500, marginBottom: 5, marginTop: 5}}
                             onChange={(range) => { 
                                 setDateTimeRange(range);
                                 setEventData(workspaceId, range, queryPattern, null);
@@ -119,14 +151,20 @@ export default function LogEventsDisplay(props)
                                 setEventData(workspaceId, [], queryPattern, null);
                             }}/>
                     </Col>
-                    <Col xs={24} sm={12} md={8} style={{width: 800}}>
-                        <InputGroup {...props} style={{marginBottom: 5, marginTop: 5}}>
+                    <Col xs={12} sm={12} md={12} style={{width: '70%', marginLeft: -5}}>
+                        <InputGroup {...props}>
                             <Input onChange={(value) => setQueryPattern(value)}/>
                             <InputGroup.Addon>
                                 <SearchIcon style={{cursor: "pointer"}}
                                     onClick={() => setEventData(workspaceId, dateTimeRange, queryPattern, null)}/>
                             </InputGroup.Addon>
                         </InputGroup>
+                    </Col>
+                    <Col xs={1} style={{paddingLeft: 0}}>
+                        <IconButton style={{marginTop: 1, marginLeft: 3, padding: 5, border: '1px solid #E8E8E8', background: 'white'}}
+                            onClick={() => setEventData(workspaceId, dateTimeRange, queryPattern, null)}
+                            size="lg"
+                            icon={<ReloadIcon/>}/>
                     </Col>
                 </Row>
             </Grid>
@@ -142,7 +180,14 @@ export default function LogEventsDisplay(props)
                 bordered={true}
                 cellBordered={false}
                 headerHeight={38}
-                rowHeight={38}>
+                rowHeight={38}
+                rowKey={rowKey}
+                expandedRowKeys={expandedRowKeys}
+                renderRowExpanded={renderRowExpanded}>
+                <Table.Column width={35} align="center">
+                    <CompactHeaderCell>#</CompactHeaderCell>
+                    <ExpandCell dataKey="id" expandedRowKeys={expandedRowKeys} onChange={handleExpanded} style={{padding: 0, paddingTop: 5}}/>
+                </Table.Column>
                 {columns.map(column => {
                     const { key, label, ...rest } = column;
                     return (
@@ -170,7 +215,7 @@ export default function LogEventsDisplay(props)
                     size="xs"
                     layout={['total', '-', 'limit', '|', 'pager', 'skip']}
                     total={events.length}
-                    limitOptions={[50, 100, 500]}
+                    limitOptions={[25, 50, 100]}
                     limit={limit}
                     activePage={page}
                     onChangePage={setPage}

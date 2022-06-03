@@ -1,6 +1,12 @@
 import { MonitoringProvider, Metric, MetricQueryContext, GroundTruthUploadContext } from '../MonitoringProvider';
 import { CloudWatchClient, PutMetricDataCommand, GetMetricStatisticsCommand, Datapoint } from '@aws-sdk/client-cloudwatch';
 import * as moment from 'moment';
+import { IllegalArgumentException } from '../../../commons/Errors';
+
+/**
+ * Pre-defined periods, i.e., 1 min, 5 min, 1 hour, 1 day
+ */
+const periods = [60, 300, 3600, 86400];
 
 export default class CloudWatchMonitoringProvider implements MonitoringProvider
 {
@@ -43,12 +49,18 @@ export default class CloudWatchMonitoringProvider implements MonitoringProvider
      */
     public async query(context: MetricQueryContext): Promise<Metric[]>
     {
+        const startTime = Number(context.startTime);
+        const endTime = Number(context.endTime);    
+        const dateTimeRange = periods.find(p => Math.floor((endTime - startTime) / 1000 / p) <= 1440);
+        if (!dateTimeRange) {
+            throw new IllegalArgumentException("Time range too large");
+        }
         const command = new GetMetricStatisticsCommand({
             Namespace: context.workspaceId,
             MetricName: context.name,
-            StartTime: context.startTime ? new Date(Number(context.startTime)) : moment().subtract(1, 'days').toDate(),
-            EndTime: context.endTime ? new Date(Number(context.endTime)) : new Date(),
-            Period: context.period ? Math.floor(context.period * 60) : 300, // seconds
+            StartTime: context.startTime ? new Date(startTime) : moment().subtract(1, 'days').toDate(),
+            EndTime: context.endTime ? new Date(endTime) : new Date(),
+            Period: context.period ? Math.floor(context.period * 60) : dateTimeRange, // seconds
             Statistics: [ this.getStatName(context.statistics) ]
         });
         const cloudWatchResponse = await this._cloudWatchClient.send(command);
