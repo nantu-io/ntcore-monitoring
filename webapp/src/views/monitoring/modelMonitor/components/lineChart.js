@@ -27,7 +27,7 @@ ChartJS.register(
     Legend
 );
 
-export default function LineChart({ data, title }) {
+export default function LineChart({ data, title, className }) {
     const [display, setDisplay] = useState({ datasets: [] });
     const options = {
         responsive: true,
@@ -56,7 +56,7 @@ export default function LineChart({ data, title }) {
     }, [data]);
 
     return (
-        <Box sx={{  }}>
+        <Box sx={{  }} className={className}>
             <Typography>{title}</Typography>
             <Line options={options} data={display} />
         </Box>

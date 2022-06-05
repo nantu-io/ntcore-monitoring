@@ -7,6 +7,7 @@ import { Grid } from '@material-ui/core';
 import DateTimeRangePicker from '../components/dateTimeRangePicker';
 import moment from 'moment';
 import { fetchDataWithParamsV1 } from '../../../../global';
+import BaseModel from '../../../baseModal';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -25,6 +26,16 @@ const useStyles = makeStyles((theme) => ({
     },
     datePicker: {
         width: '50%'
+    },
+    chart: {
+        cursor: 'pointer',
+    },
+    modal: {
+        width: 'auto'
+    },
+    modalChart: {
+        width: '900px',
+        height: 'auto'
     }
 }));
 
@@ -38,6 +49,8 @@ export default function ServiceMetricsTab(props)
     const [cpu, setCpu] = useState([]);
     const [memoryUsed, setMemoryUsed] = useState([]);
     const [bytesRecv, setBytesRecv] = useState([]);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedChartIndex, setSelectedChartIndex] = useState(0);
 
     const fetchMetrics = (workspaceId, name, startTime, endTime, statistics) => {
         return fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/metrics`, { name, startTime, endTime, statistics });
@@ -54,6 +67,23 @@ export default function ServiceMetricsTab(props)
         setMetricData(data);
     }
 
+    const handleChartClick = (index) => {
+        setSelectedChartIndex(index);
+        setModalOpen(true);
+    }
+
+    const renderChart = (data, title) => {
+        return (
+            <LineChart data={data} title={title}/>
+        );
+    }
+
+    const renderModalChart = (data, title) => {
+        return (
+            <LineChart className={classes.modalChart} data={data} title={title}/>
+        );
+    }
+
     useEffect(() => {
         setMetric('Latency', 'average', setLatency);
         setMetric('Latency', 'count', setVolume);
@@ -62,6 +92,17 @@ export default function ServiceMetricsTab(props)
         setMetric('MemoryUsed', 'average', setMemoryUsed);
         setMetric('BytesRecv', 'average', setBytesRecv);
     }, []);
+
+    const chartSpec = [
+        { title: 'Volume', data: volume },
+        { title: 'Latency', data: latency },
+        { title: 'Error', data: errorCount },
+        { title: 'Availability', data: [] },
+        { title: 'CPU', data: cpu },
+        { title: 'GPU', data: [] },
+        { title: 'Memory', data: memoryUsed },
+        { title: 'Network', data: bytesRecv },
+    ];
 
     return (
         <div>
@@ -77,32 +118,18 @@ export default function ServiceMetricsTab(props)
             </CardLayout>
             <CardLayout>
                 <Grid container spacing={3}>
-                    <Grid item xs={6}>
-                        <LineChart data={volume} title={'Volume'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={latency} title={'Latency'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={errorCount} title={'Error'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={[]} title={'Availability'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={cpu} title={'CPU'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={[]} title={'GPU'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={memoryUsed} title={'Memory'}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <LineChart data={bytesRecv} title={'Network'}/>
-                    </Grid>
+                    {chartSpec.map(({ title, data }, index) => (
+                        <Grid item xs={6}>
+                            <div className={classes.chart} onClick={() => handleChartClick(index)}>
+                                {renderChart(data, title)}
+                            </div>
+                        </Grid>
+                    ))}
                 </Grid>
             </CardLayout>
+            <BaseModel className={classes.modal} open={modalOpen} onClose={() => setModalOpen(false)}>
+                {renderModalChart(chartSpec[selectedChartIndex].data, chartSpec[selectedChartIndex].title)}
+            </BaseModel>
         </div>
     )
 }
