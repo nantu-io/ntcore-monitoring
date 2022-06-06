@@ -15,7 +15,7 @@ spec:
   ports:
     - protocol: TCP
       name: web
-      port: 8000
+      port: 80
     - protocol: TCP
       name: admin
       port: 8080
@@ -51,7 +51,7 @@ spec:
           args:
             - --api.insecure
             - --accesslog
-            - --entrypoints.web.Address=:8000
+            - --entrypoints.web.Address=:80
             - --entrypoints.websecure.Address=:4443
             - --providers.kubernetescrd
             - --certificatesresolvers.default.acme.tlschallenge
