@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Box } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -57,7 +57,6 @@ export default function LineChart({ data, title, className }) {
 
     return (
         <Box sx={{  }} className={className}>
-            <Typography>{title}</Typography>
             <Line options={options} data={display} />
         </Box>
     )

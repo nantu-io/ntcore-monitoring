@@ -1,59 +1,57 @@
-import 'date-fns';
 import React from 'react';
-import { makeStyles, } from '@material-ui/core/styles';
-import { Typography, Box } from '@material-ui/core';
+import moment from 'moment';
+import { Row, Col, Grid, IconButton } from 'rsuite';
+import 'rsuite/dist/rsuite.min.css';
+import { DateRangePicker, Input, ButtonToolbar, ButtonGroup, Button } from 'rsuite';
+import ReloadIcon from '@rsuite/icons/Reload';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    width: '100%'
-  },
-  infoElement: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  infoElementTitle: {
-    fontSize: '16px',
-    fontWeight: 'bold'
-  },
-  infoElementValue: {
-    fontSize: '14px',
-    fontWeight: 'light'
-  },
-}));
-
-// metrics: [...{title, value}]
-export default function MaterialUIPickers({ metrics }) {
-  const classes = useStyles();
-
+export default function MaterialUIPickers(props) {
+  const { workspaceId, onDateTimeRangeChange, onRefresh } = props;
+  
+  const info = `Workspace ID: ${workspaceId}`
   return (
-      <div className={classes.root}>
-        <Box className={classes.infoElement}>
-          <Typography variant="p" className={classes.infoElementTitle}>
-            Type
-          </Typography>
-          <Typography variant="p" className={classes.infoElementValue}>
-            Logistic Regression
-          </Typography>
-        </Box>
-        <Box className={classes.infoElement}>
-          <Typography variant="p" className={classes.infoElementTitle}>
-            Version
-          </Typography>
-          <Typography variant="p" className={classes.infoElementValue}>
-            1
-          </Typography>
-        </Box>
-        <Box className={classes.infoElement}>
-          <Typography variant="p" className={classes.infoElementTitle}>
-            Release date
-          </Typography>
-          <Typography variant="p" className={classes.infoElementValue}>
-            9/3/2021 10:32:18AM
-          </Typography>
-        </Box>
-      </div>
+    <Grid fluid style={{padding: 0, marginBottom: 10}}>
+      <Row>
+        <Col xs={11} sm={11} md={11}>
+          <Input readonly value={info} />
+        </Col>
+        <Col xs={6} sm={6} md={6}>
+          <DateRangePicker
+            format="MM/dd/yyyy HH:mm"
+            cleanable
+            defaultValue={[moment().subtract(1, 'months').toDate(), moment().toDate()]}
+            onChange={(range) => { 
+              onDateTimeRangeChange(range);
+            }}
+            onClean={() => {
+              onDateTimeRangeChange([]);
+            }}/>
+        </Col>
+        <Col>
+          <ButtonToolbar>
+            <ButtonGroup size="sm">
+              <Button style={{background: "white", border: '1px solid #E8E8E8', marginTop: 2}} 
+                      onClick={() => onDateTimeRangeChange([moment().subtract(1, 'hours').toDate(), moment().toDate()])}>1H</Button>
+              <Button style={{background: "white", border: '1px solid #E8E8E8', marginTop: 2}}
+                      onClick={() => onDateTimeRangeChange([moment().subtract(6, 'hours').toDate(), moment().toDate()])}>6H</Button>
+              <Button style={{background: "white", border: '1px solid #E8E8E8', marginTop: 2}}
+                      onClick={() => onDateTimeRangeChange([moment().subtract(1, 'days').toDate(), moment().toDate()])}>1D</Button>
+              <Button style={{background: "white", border: '1px solid #E8E8E8', marginTop: 2}}
+                      onClick={() => onDateTimeRangeChange([moment().subtract(1, 'weeks').toDate(), moment().toDate()])}>1W</Button>
+              <Button style={{background: "white", border: '1px solid #E8E8E8', marginTop: 2}}
+                      onClick={() => onDateTimeRangeChange([moment().subtract(1, 'months').toDate(), moment().toDate()])}>1M</Button>
+              <Button style={{background: "white", border: '1px solid #E8E8E8', marginTop: 2}}
+                      onClick={() => onDateTimeRangeChange([moment().subtract(3, 'months').toDate(), moment().toDate()])}>3M</Button>
+            </ButtonGroup>
+          </ButtonToolbar>
+        </Col>
+        <Col xs={1} style={{paddingLeft: 0}}>
+            <IconButton style={{marginTop: 1, marginLeft: 3, padding: 5, border: '1px solid #E8E8E8', background: 'white'}}
+                onClick={onRefresh}
+                size="lg"
+                icon={<ReloadIcon/>}/>
+        </Col>
+      </Row>
+  </Grid>
   );
 }
