@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import { Row, Col, Grid, IconButton } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
@@ -7,6 +7,7 @@ import ReloadIcon from '@rsuite/icons/Reload';
 
 export default function MaterialUIPickers(props) {
   const { workspaceId, onDateTimeRangeChange, onRefresh } = props;
+  const [ dateTimeRange, setDateTimeRange ] = useState([]);
   
   const info = `Workspace ID: ${workspaceId}`
   return (
@@ -20,11 +21,14 @@ export default function MaterialUIPickers(props) {
             format="MM/dd/yyyy HH:mm"
             cleanable
             defaultValue={[moment().subtract(1, 'months').toDate(), moment().toDate()]}
+            value={dateTimeRange}
             onChange={(range) => { 
               onDateTimeRangeChange(range);
+              setDateTimeRange(range);
             }}
             onClean={() => {
               onDateTimeRangeChange([]);
+              setDateTimeRange([]);
             }}/>
         </Col>
         <Col>

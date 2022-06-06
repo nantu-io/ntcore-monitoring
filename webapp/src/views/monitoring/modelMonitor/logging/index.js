@@ -30,6 +30,21 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const columns = [
+    {
+        key: 'timestamp',
+        label: 'Timestamp',
+        fixed: true,
+        width: 200
+    },
+    {
+        key: 'message',
+        label: 'Message',
+        fixed: true,
+        width: "82%"
+    }
+];
+
 const rowKey = "id";
 const CompactCell = props => <Table.Cell {...props} style={{ padding: 8, fontSize: 14 }} />;
 const CompactHeaderCell = props => <Table.HeaderCell {...props} style={{ padding: 8 }} />;
@@ -74,40 +89,24 @@ export default function LogEventsDisplay(props)
         return i >= start && i < end;
     });
 
-    const columns = [
-        {
-            key: 'timestamp',
-            label: 'Timestamp',
-            fixed: true,
-            width: 200
-        },
-        {
-            key: 'message',
-            label: 'Message',
-            fixed: true,
-            width: "82%"
-        }
-    ];
-
     const fetchEvents = async (workspaceId, startTime, endTime, queryPattern, nextToken) => {
         const res = await fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/events`, { startTime, endTime, queryPattern, nextToken });
         const data = (res.data?.events ?? []).map((event, index) => ({
-            id: index,
             message: event.message,
             timestamp: moment(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
         }));
         return [data, res.data?.nextToken]
     }
 
-    const setEventData = async (workspaceId, dateTimeRange, queryPattern, nextToken) => {
+    const setEventData = async (workspaceId, dateTimeRange, queryPattern, sequenceToken) => {
         const startTime = dateTimeRange[0]?.valueOf();
         const endTime = dateTimeRange[1]?.valueOf();
         try {
             setIsLoading(true);
-            const [fetched, token] = await fetchEvents(workspaceId, startTime, endTime, queryPattern, nextToken);
-            if (nextToken) setEvents([...events, ...fetched]);
-            else setEvents(fetched);
-            setNextToken(token);
+            const [fetched, nextSequenceToken] = await fetchEvents(workspaceId, startTime, endTime, queryPattern, sequenceToken);
+            const nextEvents = sequenceToken ? [...events, ...fetched] : fetched;
+            setEvents(nextEvents.map((event, index) => ({ ...event, id: index })));
+            setNextToken(fetched && fetched.length > 0 ? nextSequenceToken : null);
         } finally {
             setIsLoading(false);
         }
@@ -117,15 +116,10 @@ export default function LogEventsDisplay(props)
         var open = false;
         const nextExpandedRowKeys = [];
         expandedRowKeys.forEach((key) => {
-          if (key === rowData[rowKey]) {
-            open = true;
-          } else {
-            nextExpandedRowKeys.push(key);
-          }
+          if (key === rowData[rowKey]) open = true;
+          else nextExpandedRowKeys.push(key);
         });
-        if (!open) {
-          nextExpandedRowKeys.push(rowData[rowKey]);
-        }
+        if (!open) nextExpandedRowKeys.push(rowData[rowKey]);
         setExpandedRowKeys(nextExpandedRowKeys);
     };
 
@@ -142,13 +136,14 @@ export default function LogEventsDisplay(props)
                             format="MM/dd/yyyy HH:mm"
                             cleanable
                             defaultValue={[moment().subtract(1, 'months').toDate(), moment().toDate()]}
+                            value={dateTimeRange}
                             onChange={(range) => { 
-                                setDateTimeRange(range);
                                 setEventData(workspaceId, range, queryPattern, null);
+                                setDateTimeRange(range);
                             }}
                             onClean={() => {
-                                setDateTimeRange([]);
                                 setEventData(workspaceId, [], queryPattern, null);
+                                setDateTimeRange([]);
                             }}/>
                     </Col>
                     <Col xs={12} sm={12} md={12} style={{width: '70%', marginLeft: -5}}>
@@ -171,14 +166,9 @@ export default function LogEventsDisplay(props)
             <Table
                 loading={isLoading}
                 virtualized
-                height={300}
-                hover={true}
-                fillHeight={false}
-                showHeader={true}
-                autoHeight={true}
+                height={400}
                 data={paginatedEvents}
                 bordered={true}
-                cellBordered={false}
                 headerHeight={38}
                 rowHeight={38}
                 rowKey={rowKey}
@@ -201,7 +191,7 @@ export default function LogEventsDisplay(props)
             <div style={{ padding: 20, paddingLeft: 12 }}>
                 <Button 
                     appearance="link" 
-                    disabled={events.length > 0 && !nextToken}
+                    disabled={(events.length > 0 && !nextToken) || isLoading}
                     style={{paddingLeft: 0}}
                     onClick={() => setEventData(workspaceId, dateTimeRange, queryPattern, nextToken)}>Load more</Button>
                 <Pagination
@@ -215,7 +205,7 @@ export default function LogEventsDisplay(props)
                     size="xs"
                     layout={['total', '-', 'limit', '|', 'pager', 'skip']}
                     total={events.length}
-                    limitOptions={[25, 50, 100]}
+                    limitOptions={[10, 25, 50]}
                     limit={limit}
                     activePage={page}
                     onChangePage={setPage}
