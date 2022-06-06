@@ -18,8 +18,8 @@ class Monitoring extends React.Component {
             mode: null,
             loading: false,
             rowsSelected: [],
-            rows: [['test', 'C123', 'test', 'ntcore', '2021-01-01 10:30:00']],
-            // rows: []
+            // rows: [['test', 'C123', 'test', 'ntcore', '2021-01-01 10:30:00']],
+            rows: []
         };
         this._createHyperLink = this._createHyperLink.bind(this);
         this._getColumns = this._getColumns.bind(this);
@@ -59,7 +59,7 @@ class Monitoring extends React.Component {
         const name = rowInfo["name"];
         const id = rowInfo["id"];
         const version = rowInfo["max_version"];
-        const createdAt = (new Date(parseInt(rowInfo["created_at"]) * 1000)).toLocaleString();
+        const createdAt = (new Date(parseInt(rowInfo["createdAt"]))).toLocaleString();
         return [ name, id, version, createdAt ];
     }
 
@@ -67,7 +67,9 @@ class Monitoring extends React.Component {
         const { classes } = this.props;
 
         const options = { 
-            
+            download: false, 
+            print: false,
+            selectableRows: false
         };
 
         const columns = this._getColumns();

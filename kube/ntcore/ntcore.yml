@@ -16,13 +16,16 @@ data:
         pytorch: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/fast-torch
     database:
       provider:
-        type: sqlite
-        path: data/db/ntcore.db
+        type: dynamodb
+        config:
+          region: 'cn-northwest-1'
     storage:
       provider:
         type: volume
         config:
           root: data/binary
+    account:
+      username: ntcore
 
 ---
 apiVersion: v1
@@ -65,6 +68,7 @@ spec:
       containers:
         - name: ntcore
           image: ntcore/webserver:latest
+          imagePullPolicy: Always
           ports:
             - name: web
               containerPort: 8180
