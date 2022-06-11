@@ -15,3 +15,5 @@ nodeGroups:
         - arn:aws-cn:iam::aws:policy/CloudWatchFullAccess
         - arn:aws-cn:iam::aws:policy/AmazonKinesisFullAccess
         - arn:aws-cn:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws-cn:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws-cn:iam::aws:policy/AmazonEKS_CNI_Policy
