@@ -58,7 +58,7 @@ class Monitoring extends React.Component {
     _createRowData(rowInfo) {
         const name = rowInfo["name"];
         const id = rowInfo["id"];
-        const version = rowInfo["max_version"];
+        const version = rowInfo["maxVersion"];
         const createdAt = (new Date(parseInt(rowInfo["createdAt"]))).toLocaleString();
         return [ name, id, version, createdAt ];
     }

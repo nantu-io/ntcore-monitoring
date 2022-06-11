@@ -86,6 +86,11 @@ spec:
   entryPoints:
     - web
   routes:
+    - match: PathPrefix(`/`)
+      kind: Rule
+      services:
+      - name: ntcore
+        port: 8180
     - match: PathPrefix(`/dsp/console`)
       kind: Rule
       services:
