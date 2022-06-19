@@ -35,7 +35,18 @@
         logGroup = {log_group_for_customer}
         ...
     ```
-5. Apply the kubernetes configs.
+5. Update cloud/aws/eksctl.yml with the EKS cluster info, for example,
+    ```
+    metadata:
+        name: ntcore
+        region: cn-northwest-1
+
+    nodeGroups:
+        - name: beta
+          instanceType: t3.medium
+          desiredCapacity: 1
+    ```
+6. Apply the kubernetes configs.
 
 ## Documentation
 NTCore documentation: https://nantu-io.github.io/ntcore-doc.
