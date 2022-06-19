@@ -1,47 +1,16 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Summary from '../components/summary';
 import InfoBar from '../components/infoBar';
 import LineChart from '../components/lineChart';
 import CardLayout from '../components/cardLayout';
 import { Grid } from '@material-ui/core';
-import DateTimeRangePicker from '../components/dateTimeRangePicker';
 
-const useStyles = makeStyles(() => ({
-    root: {
-      width: '100%',
-      marginBottom: '10px'
-    },
-    topBar: {
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'space-between'
-    },
-    infoBar: {
-        width: '50%',
-        display: 'flex',
-        alignItems: 'center'
-    },
-    datePicker: {
-        width: '50%'
-    }
-}));
-
-export default function PerformanceTab()
+export default function PerformanceTab(props)
 {
-    const classes = useStyles();
+    const { workspaceId } = props;
     return (
         <div>
-            <CardLayout>
-                <div className={classes.topBar}>
-                    <div className={classes.infoBar}>
-                        <InfoBar />
-                    </div>
-                    <div className={classes.datePicker}>
-                        <DateTimeRangePicker onStartDateChange={() => {}} onEndDateChange={() => {}}/>
-                    </div>
-                </div>
-            </CardLayout>
+            <InfoBar workspaceId={workspaceId} />
             <CardLayout>
                 <Summary />
             </CardLayout>
