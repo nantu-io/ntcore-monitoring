@@ -1,0 +1,36 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ntcore-monitoring
+  namespace: kube-system
+spec:
+  type: ExternalName
+  externalName: ntcore-monitoring.default.svc.cluster.local
+  ports:
+  - port: 8180
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: kube-system
+  name: metrics-agent
+  labels:
+    app: metrics-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-agent
+  template:
+    metadata:
+      labels:
+        app: metrics-agent
+    spec:
+      serviceAccountName: metrics-server
+      containers:
+      - name: metrics-agent
+        image: ntcore/metrics-agent:latest
+        imagePullPolicy: Always
+        env:
+        - name: DSP_MONITORING_ENDPOINT
+          value: ntcore-monitoring:8180
