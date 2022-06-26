@@ -31,8 +31,11 @@ while True:
             monitor = Monitor(workspace_id, server=server)
             monitors[workspace_id] = monitor
             
-        monitor.add_metric('Cpu', cpu_used)
-        monitor.add_metric('MemoryUsed', mem_used)
+        # Emits number of millicores, e.g. 5m (equivalent to 0.005 cpu).
+        # 1 CPU unit is equivalent to 1 physical CPU core, or 1 virtual core, depending on whether the node is a physical host or a virtual machine running inside a physical machine.
+        monitor.add_metric('Cpu', float(cpu_used) / (1000 * 1000))
+        # Emits amount of memory in GB that a pod is using.
+        monitor.add_metric('MemoryUsed', float(mem_used) / (1024 * 1024))
 
         time.sleep(60)
         
