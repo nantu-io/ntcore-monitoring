@@ -1,6 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
+import Fade from '@material-ui/core/Fade';
+import clsx from 'clsx';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -35,14 +37,17 @@ export default function BaseModal(props) {
       disableEnforceFocus
       disableAutoFocus
       open={props.open}
+      onClose={props.onClose}
       aria-labelledby={props.label}
       aria-describedby={props.description}
       className={classes.modal}
       container={() => rootRef.current}
     >
-      <div className={classes.paper}>
-        {props.children ? React.cloneElement(props.children, { onCancel: props.onCancel }) : null}
-      </div>
+      <Fade in={props.open}>
+        <div className={clsx(classes.paper, props.className)}>
+          {props.children ? React.cloneElement(props.children, { onCancel: props.onCancel }) : null}
+        </div>
+      </Fade>
     </Modal>
   );
 }

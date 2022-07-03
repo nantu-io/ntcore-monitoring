@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Box } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -27,7 +27,7 @@ ChartJS.register(
     Legend
 );
 
-export default function LineChart({ data, title }) {
+export default function LineChart({ data, title, className }) {
     const [display, setDisplay] = useState({ datasets: [] });
     const options = {
         responsive: true,
@@ -56,8 +56,7 @@ export default function LineChart({ data, title }) {
     }, [data]);
 
     return (
-        <Box sx={{  }}>
-            <Typography>{title}</Typography>
+        <Box sx={{  }} className={className}>
             <Line options={options} data={display} />
         </Box>
     )
