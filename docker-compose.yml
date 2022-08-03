@@ -40,6 +40,7 @@ services:
       - "traefik.http.routers.monitoring-static.entrypoints=web"
       - "traefik.http.routers.monitoring-api.rule=PathPrefix(`/dsp/api/v{[0-9]+}/monitoring`)"
       - "traefik.http.routers.monitoring-api.entrypoints=web"
+      - "traefik.http.routers.monitoring-api.middlewares=talos"
     volumes:
       - "./app-config/monitoring.yml:/usr/src/app/app-config/monitoring.yml"
     networks:
@@ -47,6 +48,20 @@ services:
     depends_on:
       - timescaledb
     command: bash -c 'while !</dev/tcp/timescaledb/5432; do sleep 1; done; npm run prod'
+
+  talos:
+    image: "ntcore/talos:latest"
+    container_name: "talos"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-static.rule=PathPrefix(`/dsp/users`)"
+      - "traefik.http.routers.auth-static.entrypoints=web"
+      - "traefik.http.routers.talos.rule=PathPrefix(`/dsp/api/v{[0-9]+}/users`)"
+      - "traefik.http.routers.talos.entrypoints=web"
+      - "traefik.http.middlewares.talos.forwardauth.address=http://talos:8180/dsp/api/v1/users/authorize"
+      - "traefik.http.middlewares.talos.forwardauth.authResponseHeaders=X-NTCore-Auth-User"
+    networks:
+      - gateway
 
   ntcore:
     image: "ntcore/webserver:latest"
@@ -59,6 +74,7 @@ services:
       - "traefik.http.routers.public-static.entrypoints=web"
       - "traefik.http.routers.public-api.rule=PathPrefix(`/dsp/api`)"
       - "traefik.http.routers.public-api.entrypoints=web"
+      - "traefik.http.routers.public-api.middlewares=talos"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - data:/usr/src/app/data
