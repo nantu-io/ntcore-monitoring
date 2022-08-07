@@ -1,0 +1,91 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ntcore-talos
+data:
+  aws.yaml: |
+    DynamoDB:
+      region: cn-northwest-1
+      accessKeyId:
+      secretAccessKey:
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntcore-talos
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8180
+      targetPort: 8180
+  selector:
+    app: ntcore-talos
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: default
+  name: ntcore-talos
+  labels:
+    app: ntcore-talos
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ntcore-talos
+  template:
+    metadata:
+      labels:
+        app: ntcore-talos
+    spec:
+      volumes:
+        - name: ntcore-talos
+          configMap:
+            name: ntcore-talos
+      containers:
+        - name: ntcore-talos
+          image: ntcore/talos:latest
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8180
+          volumeMounts:
+            - name: ntcore-talos
+              mountPath: /usr/src/app/app-config
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ntcore-talos-ingress-route
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/dsp/users`)
+      kind: Rule
+      services:
+      - name: ntcore-talos
+        port: 8180
+    - match: PathPrefix(`/dsp/api/v{[0-9]+}/users`)
+      kind: Rule
+      services:
+      - name: ntcore-talos
+        port: 8180
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ntcore-talos
+spec:
+  forwardAuth:
+    address: http://ntcore-talos:8180/dsp/api/v1/users/authorize
+    authResponseHeaders:
+      - X-NTCore-Auth-User
