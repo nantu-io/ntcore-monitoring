@@ -12,8 +12,7 @@ export function fetchDataV1(url) {
 }
 
 export function fetchDataWithParamsV1(url, params) {
-  const headers = { headers: getAuthHeader()};
-  return axios.get(url, { headers, params });
+  return axios.get(url, { headers: getAuthHeader(), params });
 }
 
 export function postDataV1(url, content) {

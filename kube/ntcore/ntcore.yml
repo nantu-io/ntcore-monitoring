@@ -18,12 +18,14 @@ data:
       provider:
         type: dynamodb
         config:
-          region: 'cn-northwest-1'
+          region: cn-northwest-1
     storage:
       provider:
-        type: volume
+        type: s3
         config:
-          root: data/binary
+          bucket: ntcore-model-storage
+          root: binary
+          region: cn-northwest-1
     account:
       username: ntcore
 

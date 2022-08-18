@@ -34,8 +34,9 @@ class Monitoring extends React.Component {
         return [
             { name: 'name', label: 'Name', options: { customBodyRenderLite: this._createHyperLink, filter: false, sort: false, viewColumns: false }  },
             { name: 'workspaceId', label: 'Workspace Id' },
-            { name: 'version', label: 'Version' },
-            { name: 'createdAt', label: 'Created Date' }
+            { name: 'createdBy', label: 'Created User' },
+            { name: 'createdAt', label: 'Created Date' },
+            { name: 'Alarms', label: 'Alarms' }
         ];
     }
 
@@ -58,9 +59,9 @@ class Monitoring extends React.Component {
     _createRowData(rowInfo) {
         const name = rowInfo["name"];
         const id = rowInfo["id"];
-        const version = rowInfo["maxVersion"];
+        const createdBy = rowInfo["createdBy"];
         const createdAt = (new Date(parseInt(rowInfo["createdAt"]))).toLocaleString();
-        return [ name, id, version, createdAt ];
+        return [ name, id, createdBy, createdAt, 'OK' ];
     }
 
     render() {
@@ -69,7 +70,8 @@ class Monitoring extends React.Component {
         const options = { 
             download: false, 
             print: false,
-            selectableRows: false
+            selectableRows: false,
+            setTableProps: () => ({ size: 'small' }),
         };
 
         const columns = this._getColumns();

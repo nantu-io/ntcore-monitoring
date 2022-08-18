@@ -17,3 +17,4 @@ nodeGroups:
         - arn:aws-cn:iam::aws:policy/AmazonDynamoDBFullAccess
         - arn:aws-cn:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws-cn:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws-cn:iam::aws:policy/AmazonS3FullAccess
