@@ -68,7 +68,7 @@ def download_model(ntcore_client, workspace_id):
 if __name__ == '__main__':
     # Initialize configurable variables
     listen_host = "0.0.0.0"
-    listen_port = 8080
+    listen_port = 18080
     target_port = 8501
     # Fetches environment variables
     workspace_id = os.environ["DSP_WORKSPACE_ID"]
