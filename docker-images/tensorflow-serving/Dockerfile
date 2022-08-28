@@ -10,14 +10,12 @@ RUN pip3 install --upgrade pip &&\
     pip3 install -r /tmp/requirements.txt
 
 # Copy scripts into image
+COPY docker-entrypoint.sh /usr/local/bin/
 COPY main.py /usr/local/bin/
 
 # Health check service
 HEALTHCHECK --interval=5s --timeout=5m \
     CMD curl -f http://localhost:8080/v1/models/$DSP_WORKSPACE_ID || exit 1
 
-# Set model name
-ENV MODEL_NAME=$DSP_WORKSPACE_ID
-
-# Execute the base tensorflow serving entrypoint
-CMD ["python", "/usr/local/bin/main.py"]
+# Set docker entrypoint
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
