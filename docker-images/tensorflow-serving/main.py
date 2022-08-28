@@ -4,7 +4,7 @@ from mitmproxy import options
 from mitmproxy.tools import dump
 from subprocess import Popen, PIPE
 from ntcore.monitor import Monitor
-import logging, tarfile, os, asyncio
+import logging, tarfile, os
 
 
 class MetricsCollector:
@@ -27,7 +27,7 @@ class MetricsCollector:
             self._monitor.add_metric("Error", 1)
 
 
-async def start_proxy(host, port, addons):
+def start_proxy(host, port, addons):
     """
     Start proxy with metrics collection plugin
     """
@@ -38,9 +38,7 @@ async def start_proxy(host, port, addons):
     )
     for addon in addons:
         master.addons.add(addon)
-    
-    await master.run()
-    return master
+    master.run()
 
 
 def download_model(ntcore_client, workspace_id):
@@ -85,4 +83,4 @@ if __name__ == '__main__':
     monitor_client = Monitor(workspace_id, server=monitor_server)
     # Start server with Popen.
     proc = Popen(["sh /usr/bin/tf_serving_entrypoint.sh"], shell=True, stdout=PIPE, stderr=PIPE)
-    asyncio.run(start_proxy(listen_host, listen_port, [ MetricsCollector(monitor_client, target_port) ]))
+    start_proxy(listen_host, listen_port, [ MetricsCollector(monitor_client, target_port) ])
