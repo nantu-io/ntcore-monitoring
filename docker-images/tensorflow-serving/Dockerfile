@@ -1,13 +1,13 @@
-FROM tensorflow/serving
+FROM tensorflow/serving:latest
 
 # Install python3
 RUN apt-get update -y && \
-    apt-get install -y python3.8 python3-pip curl
+    apt-get install -y python3-pip curl
 
 # Install required packages
-RUN pip3 install requests setuptools-rust proxy.py &&\
-    pip3 install --upgrade pip &&\
-    pip3 install ntcore
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --upgrade pip &&\
+    pip3 install -r /tmp/requirements.txt
 
 # Copy scripts into image
 COPY main.py /usr/local/bin/

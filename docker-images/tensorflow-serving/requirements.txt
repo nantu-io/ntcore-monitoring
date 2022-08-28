@@ -1,0 +1,4 @@
+requests 
+setuptools-rust
+ntcore>=0.1.3
+mitmproxy
