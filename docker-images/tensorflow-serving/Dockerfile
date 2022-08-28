@@ -16,5 +16,8 @@ COPY main.py /usr/local/bin/
 HEALTHCHECK --interval=5s --timeout=5m \
     CMD curl -f http://localhost:8080/v1/models/$DSP_WORKSPACE_ID || exit 1
 
+# Set model name
+ENV MODEL_NAME=$DSP_WORKSPACE_ID
+
 # Execute the base tensorflow serving entrypoint
 CMD ["python", "/usr/local/bin/main.py"]
