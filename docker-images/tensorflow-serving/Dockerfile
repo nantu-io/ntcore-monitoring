@@ -6,8 +6,8 @@ RUN apt-get update -y && \
 
 # Install required packages
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install --upgrade pip &&\
-    pip3 install -r /tmp/requirements.txt
+RUN python3.8 -m pip install --upgrade pip &&\
+    python3.8 -m pip install -r /tmp/requirements.txt
 
 # Copy scripts into image
 COPY docker-entrypoint.sh /usr/local/bin/
