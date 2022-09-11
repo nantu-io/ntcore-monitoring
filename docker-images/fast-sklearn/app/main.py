@@ -17,9 +17,13 @@ class MetricsCollector:
 
     def request(self, flow):
         flow.request.port = self._target_port
+        if not flow.request.url.endswith('/predict'):
+            return
         self._monitor.add_metric("Count", 1)
 
     def response(self, flow):
+        if not flow.request.url.endswith('/predict'):
+            return
         if 200 <= flow.response.status_code < 300:
             latency = flow.response.timestamp_end - flow.request.timestamp_end
             self._monitor.add_metric("Latency", int(latency * 1000000))
