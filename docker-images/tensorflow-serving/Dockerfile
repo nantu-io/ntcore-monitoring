@@ -17,5 +17,8 @@ COPY main.py /usr/local/bin/
 HEALTHCHECK --interval=5s --timeout=5m \
     CMD curl -f http://localhost:8080/v1/models/$DSP_WORKSPACE_ID || exit 1
 
+# Expose the listen port
+EXPOSE 18080
+
 # Set docker entrypoint
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
