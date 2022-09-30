@@ -9,9 +9,7 @@ data:
       provider:
         type: cloudwatch
         config: 
-          region: 'cn-northwest-1'
-          accessKeyId:
-          secretAccessKey:
+          region: us-east-1
     logging:
       provider:
         type: cloudwatch
@@ -79,6 +77,11 @@ spec:
           volumeMounts:
             - name: ntcore-monitoring
               mountPath: /usr/src/app/app-config
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: 
+            - name: AWS_SECRET_ACCESS_KEY
+              value: 
 
 ---
 apiVersion: traefik.containo.us/v1alpha1

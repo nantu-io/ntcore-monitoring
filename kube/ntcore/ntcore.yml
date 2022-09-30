@@ -11,21 +11,21 @@ data:
         config:
           namespace: default
       images:
-        sklearn: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/fast-sklearn
-        tensorflow: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/tensorflow-serving
-        pytorch: 930069127538.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ntcore/fast-torch
+        sklearn: ntcore/fast-sklearn
+        tensorflow: ntcore/tensorflow-serving
+        pytorch: ntcore/fast-torch
     database:
       provider:
         type: dynamodb
         config:
-          region: cn-northwest-1
+          region: us-east-1
     storage:
       provider:
         type: s3
         config:
           bucket: ntcore-model-storage
           root: binary
-          region: cn-northwest-1
+          region: us-east-1
     account:
       username: ntcore
 
@@ -75,6 +75,11 @@ spec:
           volumeMounts:
             - name: ntcore
               mountPath: /usr/src/app/app-config
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              value: 
+            - name: AWS_SECRET_ACCESS_KEY
+              value: 
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
