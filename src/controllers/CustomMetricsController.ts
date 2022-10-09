@@ -13,13 +13,9 @@ export class CustomMetricsController
     }
 
     /**
-     * Endpoint to ingest timeseries data.
+     * Endpoint to create custom metrics.
      * @param req Request object.
      * @param res Response object.
-     * Example: curl -X POST \
-     *      -H "Content-Type: application/json" \
-     *      -d '{"workspaceId": "C123", "name": "test", value: 1.0 ,"timestamp": 1650426681000}' \
-     *      localhost:8180/dsp/api/v1/monitoring/metrics
      */
      public async createCustomMetrics(req: Request<{}, {}, CustomMetrics, {}>, res: Response) 
      {
@@ -34,7 +30,12 @@ export class CustomMetricsController
          }
      }
 
-    
+
+    /**
+     * Endpoint to read custom metrics.
+     * @param req Request object.
+     * @param res Response object.
+     */
     public async readCustomMetrics(
     req: Request<{workspaceId: string}, {}, {}, {}>, 
     res: Response<CustomMetrics>){
