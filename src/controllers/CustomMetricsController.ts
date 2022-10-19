@@ -17,18 +17,18 @@ export class CustomMetricsController
      * @param req Request object.
      * @param res Response object.
      */
-     public async createCustomMetrics(req: Request<{}, {}, CustomMetrics, {}>, res: Response) 
-     {
-         try {
-             const {  workspaceId, name, type, formula } = req.body;
-             const timestamp = req.body.timestamp ?? Date.now();
-             RequestValidator.validateRequest(workspaceId, name, type, formula);
-             await custommetricsProvider.create({workspaceId, name, type, timestamp, formula});
-             res.status(201).json({workspaceId, name, type, timestamp, formula});
-         } catch (err) {
-             ErrorHandler.handleException(err, res);
-         }
-     }
+    public async createCustomMetrics(req: Request<{}, {}, CustomMetrics, {}>, res: Response) 
+    {
+        try {
+            const {  workspaceId, name, type, formula } = req.body;
+            const timestamp = req.body.timestamp ?? Date.now();
+            RequestValidator.validateRequest(workspaceId, name, type, formula);
+            await custommetricsProvider.create({workspaceId, name, type, timestamp, formula});
+            res.status(201).json({workspaceId, name, type, timestamp, formula});
+        } catch (err) {
+            ErrorHandler.handleException(err, res);
+        }
+    }
 
 
     /**
@@ -37,8 +37,9 @@ export class CustomMetricsController
      * @param res Response object.
      */
     public async readCustomMetrics(
-    req: Request<{workspaceId: string}, {}, {}, {}>, 
-    res: Response<CustomMetrics>){
+        req: Request<{workspaceId: string}, {}, {}, {}>, 
+        res: Response<CustomMetrics>)
+    {
         try {
             const { workspaceId } = req.params;
             RequestValidator.validateRequest(workspaceId);
