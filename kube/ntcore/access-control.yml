@@ -2,7 +2,6 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: default
   name: ntcore-service-role
 rules:
   - apiGroups:
@@ -14,6 +13,17 @@ rules:
       - list
       - create
       - update
+      - delete
+  - apiGroups:
+      - "networking.k8s.io"
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
   - apiGroups:
       - apps
     resources:
@@ -23,6 +33,8 @@ rules:
       - list
       - create
       - update
+      - delete
+      - patch
   - apiGroups:
       - traefik.containo.us
     resources:
@@ -50,7 +62,6 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: default
 roleRef:
   kind: Role
   name: ntcore-service-role

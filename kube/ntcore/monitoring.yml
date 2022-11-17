@@ -15,7 +15,7 @@ data:
         type: cloudwatch
         group: /ntcore/monitoring/dev
         config: 
-          region: 'cn-northwest-1'
+          region: 'us-east-1'
           accessKeyId:
           secretAccessKey:
       streamProvider:
@@ -36,6 +36,7 @@ kind: Service
 metadata:
   name: ntcore-monitoring
 spec:
+  type: ClusterIP
   ports:
     - protocol: TCP
       name: web
@@ -48,11 +49,9 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  namespace: default
   name: ntcore-monitoring
   labels:
     app: ntcore-monitoring
-
 spec:
   replicas: 1
   selector:
@@ -79,34 +78,54 @@ spec:
               mountPath: /usr/src/app/app-config
           env:
             - name: AWS_ACCESS_KEY_ID
-              value: 
+              value: AKIAQ2AR72HWDJD4BZQ3
             - name: AWS_SECRET_ACCESS_KEY
-              value: 
+              value: itu7T3NkmfDiPd/1H7872VWLYG5cV+WGmJajnFqG
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: ntcore-monitoring-ingress-route
-  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ntcore-monitoring
 spec:
-  entryPoints:
-    - web
-  routes:
-    - match: PathPrefix(`/dsp/console/monitoring`)
-      kind: Rule
-      services:
-      - name: ntcore-monitoring
-        port: 8180
-    - match: PathPrefix(`/dsp/monitoring`)
-      kind: Rule
-      services:
-      - name: ntcore-monitoring
-        port: 8180
-    - match: PathPrefix(`/dsp/api/v{[0-9]+}/monitoring`)
-      kind: Rule
-      services:
-      - name: ntcore-monitoring
-        port: 8180
-      middlewares:
-      - name: ntcore-talos
+  rules:
+  - http:
+      paths:
+      - path: /dsp/console/monitoring
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore-monitoring
+            port:
+              number: 8180
+      - path: /dsp/monitoring
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore-monitoring
+            port:
+              number: 8180
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-url: http://$host/dsp/api/v1/users/authorize
+    nginx.ingress.kubernetes.io/auth-response-headers: X-NTCore-Auth-User
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  name: ntcore-monitoring-api
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /dsp/api/v[0-9]+/monitoring
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore-monitoring
+            port:
+              number: 8180

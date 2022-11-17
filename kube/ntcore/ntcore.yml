@@ -1,42 +1,10 @@
 ---
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: ntcore
-data:
-  ntcore.yml: |
-    container:
-      provider:
-        type: kubernetes
-        config:
-          namespace: default
-      images:
-        sklearn: ntcore/fast-sklearn
-        tensorflow: tensorflow/serving
-        pytorch: ntcore/fast-torch
-        bootstrap: ntcore/bootstrap
-        metricsProxy: ntcore/metrics-proxy
-    database:
-      provider:
-        type: dynamodb
-        config:
-          region: us-east-1
-    storage:
-      provider:
-        type: s3
-        config:
-          bucket: ntcore-model-storage
-          root: binary
-          region: us-east-1
-    account:
-      username: ntcore
-
----
 apiVersion: v1
 kind: Service
 metadata:
   name: ntcore
 spec:
+  type: ClusterIP
   ports:
     - protocol: TCP
       name: web
@@ -49,7 +17,6 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  namespace: default
   name: ntcore
   labels:
     app: ntcore
@@ -64,9 +31,12 @@ spec:
         app: ntcore
     spec:
       volumes:
-        - name: ntcore
+        - name: ntcore-global
           configMap:
-            name: ntcore
+            name: ntcore-global
+        - name: ntcore-kubernetes
+          configMap:
+            name: ntcore-kubernetes
       containers:
         - name: ntcore
           image: ntcore/webserver:latest
@@ -75,43 +45,67 @@ spec:
             - name: web
               containerPort: 8180
           volumeMounts:
-            - name: ntcore
-              mountPath: /usr/src/app/app-config
+            - name: ntcore-global
+              mountPath: /usr/src/app/app-config/global
+            - name: ntcore-kubernetes
+              mountPath: /usr/src/app/app-config/kubernetes
           env:
             - name: AWS_ACCESS_KEY_ID
-              value: 
+              value: AKIAQ2AR72HWDJD4BZQ3
             - name: AWS_SECRET_ACCESS_KEY
-              value: 
+              value: itu7T3NkmfDiPd/1H7872VWLYG5cV+WGmJajnFqG
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: ntcore-ingress-route
-  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ntcore
 spec:
-  entryPoints:
-    - web
-  routes:
-    - match: PathPrefix(`/`)
-      kind: Rule
-      services:
-      - name: ntcore
-        port: 8180
-    - match: PathPrefix(`/dsp/console`)
-      kind: Rule
-      services:
-      - name: ntcore
-        port: 8180
-    - match: PathPrefix(`/dsp/public`)
-      kind: Rule
-      services:
-      - name: ntcore
-        port: 8180
-    - match: PathPrefix(`/dsp/api`)
-      kind: Rule
-      services:
-      - name: ntcore
-        port: 8180
-      middlewares:
-      - name: ntcore-talos
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore
+            port:
+              number: 8180
+      - path: /dsp/console
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore
+            port:
+              number: 8180
+      - path: /dsp/public
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore
+            port:
+              number: 8180
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-url: http://$host/dsp/api/v1/users/authorize
+    nginx.ingress.kubernetes.io/auth-response-headers: X-NTCore-Auth-User
+    nginx.ingress.kubernetes.io/proxy-body-size: "5000m"
+  name: ntcore-api
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /dsp/api
+        pathType: Prefix
+        backend:
+          service:
+            name: ntcore
+            port:
+              number: 8180
