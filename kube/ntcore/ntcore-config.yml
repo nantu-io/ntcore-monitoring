@@ -9,7 +9,7 @@ data:
       provider:
         type: kubernetes
         config:
-          namespace: default
+          namespace: ntcore
     database:
       provider:
         type: dynamodb
