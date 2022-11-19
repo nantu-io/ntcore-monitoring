@@ -23,6 +23,7 @@ class MetricsCollector:
         if 200 <= flow.response.status_code < 300:
             latency = flow.response.timestamp_end - flow.request.timestamp_end
             self._monitor.add_metric("Latency", int(latency * 1000000))
+            self._monitor.add_metric("Error", 0)
         else:
             self._monitor.add_metric("Error", 1)
 

@@ -19,4 +19,4 @@ HEALTHCHECK --interval=5s --timeout=5m \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Start uvicorn server
-CMD ["python", "main.py"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080"]

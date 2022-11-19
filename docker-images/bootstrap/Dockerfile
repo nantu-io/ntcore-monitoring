@@ -12,6 +12,7 @@ RUN pip install --upgrade pip &&\
 # Copy scripts into image
 COPY docker-entrypoint.sh /usr/local/bin/
 COPY main.py /usr/local/bin/
+COPY serialized_model_handler.py /usr/local/bin/
 
 # Set docker entrypoint
 ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
