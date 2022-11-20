@@ -16,7 +16,7 @@ WORKDIR /app
 
 # Add flask health check
 HEALTHCHECK --interval=5s --timeout=5m \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:8080/v1/models/healthcheck || exit 1
 
 # Start uvicorn server
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080"]
