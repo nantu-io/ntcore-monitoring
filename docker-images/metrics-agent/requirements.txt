@@ -1,2 +1,2 @@
 kubernetes
-ntcore>=0.1.0
+ntcore>=0.1.4

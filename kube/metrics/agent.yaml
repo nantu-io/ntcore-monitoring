@@ -32,5 +32,9 @@ spec:
         image: ntcore/metrics-agent:latest
         imagePullPolicy: Always
         env:
+        - name: DSP_MONITORING_NAMESPACE
+          value: ntcore
         - name: DSP_MONITORING_ENDPOINT
           value: ntcore-monitoring:8180
+        - name: DSP_MONITORING_SECONDS
+          value: 60
