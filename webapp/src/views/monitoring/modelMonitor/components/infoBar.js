@@ -13,7 +13,7 @@ export default function MaterialUIPickers(props) {
   return (
     <Grid fluid style={{padding: 0, marginBottom: 10}}>
       <Row>
-        <Col xs={11} sm={11} md={11}>
+        <Col xs={8} sm={8} md={8}>
           <Input readonly value={info} />
         </Col>
         <Col xs={6} sm={6} md={6}>
