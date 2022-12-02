@@ -1,7 +1,7 @@
 import { appConfig } from "../config/AppConfigProvider";
 import Database = require("better-sqlite3");
 
-export default class DatabaseClientProvider 
+export default class SQliteClientProvider 
 {
     /**
      * Database client instance;

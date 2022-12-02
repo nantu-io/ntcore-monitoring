@@ -1,7 +1,7 @@
 import { appConfig } from "../config/AppConfigProvider";
 import { Pool } from "pg";
 
-export default class DatabaseClientProvider 
+export default class PostgresClientProvider 
 {
     /**
      * Database client instance;

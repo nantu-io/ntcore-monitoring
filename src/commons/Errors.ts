@@ -22,3 +22,8 @@ export class InternalServiceErrorException extends Error
 {
     
 }
+
+export class NotFoundException extends Error
+{
+    
+}
