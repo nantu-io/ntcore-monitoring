@@ -19,7 +19,7 @@ export class SQLiteCustomMetricsProvider implements ICustomMetricsProvider
 
     public async initialize()
     {
-        this._databaseClient.exec(sql['initialization']);
+        this._databaseClient.exec(sql['initialize']);
     }
 
     /**

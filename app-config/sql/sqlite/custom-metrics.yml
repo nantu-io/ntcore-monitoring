@@ -1,4 +1,4 @@
-initialization:
+initialize:
   CREATE TABLE IF NOT EXISTS custom_metrics (
     workspace_id   TEXT,
     name           TEXT,
