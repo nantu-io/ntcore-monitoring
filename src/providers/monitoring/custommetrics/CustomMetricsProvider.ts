@@ -46,7 +46,7 @@ export class CustomMetricsProviderFactory
         const databaseType: DatabaseType = appConfig.database.provider;
         switch(databaseType) {
             case DatabaseType.SQLITE: return new SQLiteCustomMetricsProvider(SQliteClientProvider.get());
-            default: throw new Error("Invalid provide type");
+            default: throw new Error("Invalid provider type");
         }
     }
 }
