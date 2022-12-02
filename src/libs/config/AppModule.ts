@@ -4,11 +4,11 @@ import { CustomMetricsProviderFactory } from "../../providers/monitoring/customm
 
 export const monitoringProvider = new MonitoringProviderFactory().createProvider();
 export const logEventsProvider = new LogEventsProviderFactory().createProvider();
-export const custommetricsProvider = new CustomMetricsProviderFactory().createProvider();
+export const customMetricsProvider = new CustomMetricsProviderFactory().createProvider();
 
 export async function initialize()
 {
     await monitoringProvider.provision();
     await logEventsProvider.provision();
-    await custommetricsProvider.initialize();
+    await customMetricsProvider.initialize();
 }

@@ -1,0 +1,27 @@
+initialization:
+  CREATE TABLE IF NOT EXISTS custom_metrics (
+    workspace_id   TEXT,
+    name           TEXT,
+    type           TEXT,
+    timestamp      INTEGER,
+    formula        TEXT,
+    PRIMARY KEY(workspace_id, name)
+  );
+
+create:
+  INSERT INTO custom_metrics (workspace_id, name, type, timestamp, formula) 
+  VALUES ($workspaceId, $name, $type, $timestamp, $formula)
+
+read:
+  SELECT workspace_id, name, type, timestamp, formula 
+  FROM custom_metrics
+  WHERE workspace_id=$workspaceId AND name=$name
+
+list:
+  SELECT workspace_id, name, type, timestamp, formula 
+  FROM custom_metrics
+  WHERE workspace_id=$workspaceId
+
+delete:
+  DELETE FROM custom_metrics
+  WHERE workspace_id=$workspaceId AND name=$name

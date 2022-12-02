@@ -1,10 +1,10 @@
-import { ICustomMetricsProvider,CustomMetrics } from '../CustomMetricsProvider';
-import {
-    CUSTOMMETRICS_INITIALIZATION,
-    CUSTOMMETRICS_CREATE,
-    CUSTOMMETRICS_READ
-} from './CustomMetricsQueries';
+import { ICustomMetricsProvider, CustomMetrics } from '../CustomMetricsProvider';
+import { NotFoundException } from '../../../../commons/Errors';
+import yaml = require('js-yaml');
+import fs = require('fs');
 import Database = require("better-sqlite3");
+
+const sql = yaml.load(fs.readFileSync('app-config/sql/sqlite/custom-metrics.yml', 'utf8'));
 
 export class SQLiteCustomMetricsProvider implements ICustomMetricsProvider 
 {
@@ -19,37 +19,56 @@ export class SQLiteCustomMetricsProvider implements ICustomMetricsProvider
 
     public async initialize()
     {
-        this._databaseClient.exec(CUSTOMMETRICS_INITIALIZATION);
-    }
-    /**
-     * Create a new custom metrics.
-     * @param custom_metrics CustomMetrics object.
-     */
-    public async create(custom_metrics: CustomMetrics): Promise<CustomMetrics>
-    {
-        this._databaseClient.prepare(CUSTOMMETRICS_CREATE).run({
-            workspaceId: custom_metrics.workspaceId,
-            name: custom_metrics.name,
-            type: custom_metrics.type,
-            timestamp: custom_metrics.timestamp,
-            formula: custom_metrics.formula
-        });
-        return custom_metrics;
-    }
-    /**
-     * Retrieve the custom metrics.
-     * @param id CustomMetrics id.
-     */
-    public async read(workspaceId: string): Promise<CustomMetrics> 
-    {
-        const row = this._databaseClient.prepare(CUSTOMMETRICS_READ).get({ workspaceId: workspaceId });
-        return {
-            workspaceId: row.workspaceId, 
-            name: row.name, 
-            type: row.type, 
-            timestamp: row.timestamp,
-            formula: row.formula
-        };
+        this._databaseClient.exec(sql['initialization']);
     }
 
+    /**
+     * Create a new custom metric.
+     * @param customMetrics custom metric definition
+     */
+    public async create(customMetrics: CustomMetrics): Promise<CustomMetrics>
+    {
+        const workspaceId = customMetrics.workspaceId;
+        const name = customMetrics.name;
+        const type = customMetrics.type;
+        const timestamp = customMetrics.timestamp;
+        const formula = customMetrics.formula;
+        const entry = { workspaceId, name, type, timestamp, formula };
+        this._databaseClient.prepare(sql['create']).run(entry);
+
+        return customMetrics;
+    }
+    
+    /**
+     * Returns a custom metric definition.
+     * @param workspaceId workspace id
+     * @param name custom metric name
+     * @returns custom metric definition
+     */
+    public async read(workspaceId: string, name: string): Promise<CustomMetrics> 
+    {
+        const row = this._databaseClient.prepare(sql['read']).get({ workspaceId, name });
+        if (!row) throw new NotFoundException();
+        const type = row?.type;
+        const timestamp = row?.timestamp;
+        const formula = row?.formula;
+
+        return { workspaceId, name, type, timestamp, formula };
+    }
+
+    /**
+     * Returns a list of custom metric definitions.
+     * @param workspaceId workspace id
+     */
+    public async list(workspaceId: string): Promise<CustomMetrics[]>
+    {
+        return this._databaseClient.prepare(sql['list']).all({ workspaceId })
+        .map(row => ({
+            workspaceId: row?.workspace_id,
+            name: row?.name,
+            type: row?.type,
+            timestamp: row?.timestamp,
+            formula: row?.formula
+        }));
+    }
 }

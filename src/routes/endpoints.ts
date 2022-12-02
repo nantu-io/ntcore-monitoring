@@ -32,9 +32,10 @@ export class Routes
         app.route('/dsp/api/v1/monitoring/:workspaceId/events')
             .post(this.logEventsController.writeLogEvents)
             .get(this.logEventsController.queryLogEvents)
-        app.route('/dsp/api/v1/monitoring/:workspaceId/custommetrics')
-            .post(this.customMetricsController.createCustomMetrics);
-        app.route('/dsp/api/v1/monitoring/:workspaceId/custommetrics')
+        app.route('/dsp/api/v1/monitoring/:workspaceId/customMetrics')
+            .post(this.customMetricsController.createCustomMetrics)
+            .get(this.customMetricsController.listCustomMetrics);
+        app.route('/dsp/api/v1/monitoring/:workspaceId/customMetrics/:name')
             .get(this.customMetricsController.readCustomMetrics);
     }
 }
