@@ -6,6 +6,9 @@ import Database = require("better-sqlite3");
 
 const sql = yaml.load(fs.readFileSync('app-config/sql/sqlite/custom-metrics.yml', 'utf8'));
 
+/**
+ * SQLite implementation of custom metrics CRUD.
+ */
 export class SQLiteCustomMetricsProvider implements ICustomMetricsProvider 
 {
     private _databaseClient: Database.Database
@@ -19,21 +22,25 @@ export class SQLiteCustomMetricsProvider implements ICustomMetricsProvider
 
     public async initialize()
     {
-        this._databaseClient.exec(sql['initialize']);
+        this._databaseClient.transaction(() => {
+            this._databaseClient.exec(sql['initialize']);
+            sql['index'].forEach((index: string) => this._databaseClient.exec(index));
+        })();
     }
 
     /**
      * Create a new custom metric.
      * @param customMetrics custom metric definition
      */
-    public async create(customMetrics: CustomMetrics): Promise<CustomMetrics>
+    public async create(customMetrics: CustomMetrics, userId: string): Promise<CustomMetrics>
     {
         const workspaceId = customMetrics.workspaceId;
         const name = customMetrics.name;
         const type = customMetrics.type;
         const timestamp = customMetrics.timestamp;
         const formula = customMetrics.formula;
-        const entry = { workspaceId, name, type, timestamp, formula };
+        const currentEpochTime = Math.floor((new Date()).getTime()/1000);
+        const entry = { workspaceId, name, type, timestamp, formula, userId, currentEpochTime };
         this._databaseClient.prepare(sql['create']).run(entry);
 
         return customMetrics;
@@ -70,5 +77,16 @@ export class SQLiteCustomMetricsProvider implements ICustomMetricsProvider
             timestamp: row?.timestamp,
             formula: row?.formula
         }));
+    }
+
+    /**
+     * Deletes a custom metric from workspace with the given metric name.
+     * @param workspaceId workspace id
+     * @param name metric name
+     */
+    public async delete(workspaceId: string, name: string, userId: string): Promise<void>
+    {
+        const currentEpochTime = Math.floor((new Date()).getTime()/1000);
+        this._databaseClient.prepare(sql['delete']).run({workspaceId, name, userId, currentEpochTime});
     }
 }

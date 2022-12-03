@@ -36,6 +36,7 @@ export class Routes
             .post(this.customMetricsController.createCustomMetrics)
             .get(this.customMetricsController.listCustomMetrics);
         app.route('/dsp/api/v1/monitoring/:workspaceId/customMetrics/:name')
-            .get(this.customMetricsController.readCustomMetrics);
+            .get(this.customMetricsController.readCustomMetrics)
+            .delete(this.customMetricsController.deleteCustomMetrics)
     }
 }

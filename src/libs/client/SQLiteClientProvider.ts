@@ -1,4 +1,5 @@
 import { appConfig } from "../config/AppConfigProvider";
+import { SQLiteClientConfig } from "../config/DatabaseProvider";
 import Database = require("better-sqlite3");
 
 export default class SQliteClientProvider 
@@ -10,6 +11,7 @@ export default class SQliteClientProvider
 
     public static get(): Database.Database 
     {
-        return this._client || (this._client = Database(appConfig.database.path, {}));
+        const config = appConfig.database.config as SQLiteClientConfig
+        return this._client || (this._client = Database(config.path, {}));
     }
 }

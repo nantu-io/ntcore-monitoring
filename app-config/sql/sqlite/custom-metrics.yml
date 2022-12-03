@@ -5,23 +5,33 @@ initialize:
     type           TEXT,
     timestamp      INTEGER,
     formula        TEXT,
+    is_deleted     INTEGER,
+    created_by     TEXT,
+    created_at     INTEGER,
+    last_mod_by    TEXT,
+    last_mod_at    INTEGER,
     PRIMARY KEY(workspace_id, name)
   );
 
+index:
+  - CREATE INDEX IF NOT EXISTS idx_workspace_id_is_deleted 
+    ON custom_metrics (workspace_id, is_deleted);
+
 create:
-  INSERT INTO custom_metrics (workspace_id, name, type, timestamp, formula) 
-  VALUES ($workspaceId, $name, $type, $timestamp, $formula)
+  INSERT OR REPLACE INTO custom_metrics (workspace_id, name, type, timestamp, formula, created_by, created_at, last_mod_by, last_mod_at, is_deleted)
+  VALUES ($workspaceId, $name, $type, $timestamp, $formula, $userId, $currentEpochTime, $userId, $currentEpochTime, 0)
 
 read:
-  SELECT workspace_id, name, type, timestamp, formula 
+  SELECT workspace_id, name, type, timestamp, formula, created_by, created_at, last_mod_by, last_mod_at
   FROM custom_metrics
-  WHERE workspace_id=$workspaceId AND name=$name
+  WHERE workspace_id=$workspaceId AND name=$name AND is_deleted = 0
 
 list:
-  SELECT workspace_id, name, type, timestamp, formula 
+  SELECT workspace_id, name, type, timestamp, formula, created_by, created_at, last_mod_by, last_mod_at
   FROM custom_metrics
-  WHERE workspace_id=$workspaceId
+  WHERE workspace_id=$workspaceId AND is_deleted = 0
 
 delete:
-  DELETE FROM custom_metrics
+  UPDATE custom_metrics
+  SET is_deleted = 1, last_mod_by = $userId, last_mod_at = $currentEpochTime
   WHERE workspace_id=$workspaceId AND name=$name

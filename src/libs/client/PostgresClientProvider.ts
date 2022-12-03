@@ -1,4 +1,5 @@
 import { appConfig } from "../config/AppConfigProvider";
+import { PostgresClientConfig } from "../config/DatabaseProvider";
 import { Pool } from "pg";
 
 export default class PostgresClientProvider 
@@ -10,6 +11,7 @@ export default class PostgresClientProvider
 
     public static get(): Pool 
     {
-        return this._client || (this._client = new Pool(appConfig.database.config));
+        const config = appConfig.database.config as PostgresClientConfig
+        return this._client || (this._client = new Pool(config));
     }
 }
