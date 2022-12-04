@@ -47,9 +47,11 @@ export default function ServiceMetricsTab(props)
 
     return (
         <div>
-            <InfoBar workspaceId={workspaceId} 
+            <div style={{padding: 0, marginBottom: 10}}>
+                <InfoBar workspaceId={workspaceId} 
                     onDateTimeRangeChange={setDateTimeRange}
                     onRefresh={setMetrics}/>
+            </div>
             <CardLayout>
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
