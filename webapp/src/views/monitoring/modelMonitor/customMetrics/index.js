@@ -37,7 +37,7 @@ export default function CustomMetrics(props)
             const res = await fetchDataWithParamsV1(`/dsp/api/v1/monitoring/${workspaceId}/customMetrics`);
             return res?.data ?? [{name: 'test'}];
         } catch (Exception) {
-            return [{name: 'test'}];
+            return [];
         }
     }
 
@@ -90,7 +90,7 @@ export default function CustomMetrics(props)
                         </Grid>)}
                 </Grid>
             </CardLayout>
-            <Modal open={open} onClose={handleClose} overflow={true} style={{marginTop: 130}}>
+            <Modal open={open} onClose={handleClose} overflow={true} style={{marginTop: 60}}>
                 <Modal.Header>
                     <Modal.Title style={{fontSize: 20}}>Add Custom Metric</Modal.Title>
                 </Modal.Header>
