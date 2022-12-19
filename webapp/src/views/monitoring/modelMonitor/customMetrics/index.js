@@ -78,18 +78,19 @@ export default function CustomMetrics(props)
                     <Col><Button appearance="primary" block onClick={handleOpen}>New metric</Button></Col>
                 </Row>
             </Grid>
-            <CardLayout>
-                <Grid container spacing={3}>
-                    {customMetricsData.map(metric => 
-                        <Grid item xs={6}>
-                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: -30}}>
-                                <div style={{fontSize: 20}}></div>
-                                <IconButton icon={<CloseIcon/>} onClick={() => handleDelete(metric.name)}/>
-                            </div>
-                            <LineChart data={metric.data} title={metric.name}/>
-                        </Grid>)}
-                </Grid>
-            </CardLayout>
+            { customMetricsData.length === 0 ? <></> :
+                <CardLayout>
+                    <Grid container spacing={3}>
+                        {customMetricsData.map(metric => 
+                            <Grid item xs={6}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: -30}}>
+                                    <div style={{fontSize: 20}}></div>
+                                    <IconButton icon={<CloseIcon/>} onClick={() => handleDelete(metric.name)}/>
+                                </div>
+                                <LineChart data={metric.data} title={metric.name}/>
+                            </Grid>)}
+                    </Grid>
+                </CardLayout>}
             <Modal open={open} onClose={handleClose} overflow={true} style={{marginTop: 60}}>
                 <Modal.Header>
                     <Modal.Title style={{fontSize: 20}}>Add Custom Metric</Modal.Title>
