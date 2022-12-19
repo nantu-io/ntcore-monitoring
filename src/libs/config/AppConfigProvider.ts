@@ -1,27 +1,8 @@
-import { 
-    DatabaseType, 
-    DatabaseTypeMapping, 
-    MonitoringProviderType, 
-    MonitoringProviderTypeMapping
-} from '../../commons/ProviderType';
+import { MonitoringProviderType, MonitoringProviderTypeMapping } from '../../commons/ProviderType';
+import { DatabaseProvider } from './DatabaseProvider';
 import yaml = require('js-yaml');
 import fs = require('fs');
 
-/**
- * Database setup in AppConfig.
- */
-class AppConfigDatabase
-{
-    provider: DatabaseType;
-    path?: string;
-    config?: {
-        host: string;
-        port: number;
-        user: string;
-        database: string;
-        password: string;
-    }
-}
 /**
  * Monitoring setup in AppConfig.
  */
@@ -71,20 +52,10 @@ export class AWSClientConfig
  */
 class AppConfig 
 {
-    database: AppConfigDatabase;
+    database: DatabaseProvider;
     monitoring: AppConfigMonitoring;
     logging: AppConfigLogging;
-}
-
-function getDatabtaseProviderConfig(config: any): AppConfigDatabase 
-{
-    const providerConfig = config['database'].provider;
-    const provider = DatabaseTypeMapping[providerConfig.type];
-    switch(provider) {
-        case DatabaseType.SQLITE: return { provider: provider, path: providerConfig.path };
-        case DatabaseType.POSTGRES: return getPostgresProviderConfig(provider, config);
-        default: throw new Error("Invalid databse provider");
-    }
+    account: { username: string };
 }
 
 function getMonitoringProviderConfig(config: any): AppConfigMonitoring
@@ -95,21 +66,6 @@ function getMonitoringProviderConfig(config: any): AppConfigMonitoring
         case MonitoringProviderType.CLOUDWATCH: return getCloudWatchMetricsConfig(provider, config);
         default: throw new Error("Invalid monitoring provider");
     }
-}
-
-function getPostgresProviderConfig(provider: DatabaseType, config: any): AppConfigDatabase 
-{
-    const providerConfig = config['database'].provider.config;
-    return { 
-        provider: provider, 
-        config: {
-            host: providerConfig.host,
-            port: providerConfig.port,
-            user: providerConfig.user,
-            database: providerConfig.database,
-            password: providerConfig.password,
-        }
-    };
 }
 
 function getTimeseriesDBProviderConfig(provider: MonitoringProviderType, config: any): AppConfigMonitoring 
@@ -170,9 +126,10 @@ function getAppConfig(): AppConfig
 {
     const config = yaml.load(fs.readFileSync('app-config/monitoring.yml', 'utf8'));
     return { 
-        database: getDatabtaseProviderConfig(config),
+        database: config['database'].provider,
         monitoring: getMonitoringProviderConfig(config),
-        logging: getLogEventsProviderConfig(config)
+        logging: getLogEventsProviderConfig(config),
+        account: config['account']
     };
 }
 

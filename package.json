@@ -11,6 +11,7 @@
         "@aws-sdk/client-batch": "^3.67.0",
         "@aws-sdk/client-cloudwatch": "^3.76.0",
         "@aws-sdk/client-cloudwatch-logs": "^3.67.0",
+        "@aws-sdk/client-dynamodb": "^3.223.0",
         "@aws-sdk/client-ecs": "^3.67.0",
         "@aws-sdk/client-kinesis": "^3.99.0",
         "@kubernetes/client-node": "^0.15.0",
@@ -58,7 +59,7 @@
         "sass-loader": "^7.1.0",
         "style-loader": "^0.23.1",
         "url-loader": "^2.0.0",
-        "webpack": "^5.72.0",
+        "webpack": "^4.0.0",
         "webpack-cli": "^3.3.2",
         "webpack-dev-server": "^4.8.1"
     },

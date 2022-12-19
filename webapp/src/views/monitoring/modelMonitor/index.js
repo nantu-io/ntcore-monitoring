@@ -3,10 +3,11 @@ import BaseLayout from '../../baseLayout';
 import { Box } from '@material-ui/core';
 import ServiceMetrics from './serviceMetrics';
 import LogEventsDisplay from './logging';
-import Tab from '@mui/material/Tab';
-import TabContext from '@mui/lab/TabContext';
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
+import CustomMetrics from './customMetrics'
+import Tab from '@material-ui/core/Tab';
+import TabContext from '@material-ui/lab/TabContext';
+import TabList from '@material-ui/lab/TabList';
+import TabPanel from '@material-ui/lab/TabPanel';
 
 export default function ModelMonitor(props) 
 {
@@ -26,6 +27,7 @@ export default function ModelMonitor(props)
             <TabList onChange={handleChange} aria-label="monitoring options">
               <Tab label="Overview" value="0" />
               <Tab label="Logs" value="1" />
+              <Tab label="Custom" value="2" />
             </TabList>
           </Box>
           <TabPanel value="0" style={{paddingLeft: 0, paddingRight: 0, paddingTop: 16}}>
@@ -33,6 +35,9 @@ export default function ModelMonitor(props)
           </TabPanel>
           <TabPanel value="1" style={{paddingLeft: 0, paddingRight: 0, paddingTop: 16}}>
             <LogEventsDisplay workspaceId={workspaceId}/>
+          </TabPanel>
+          <TabPanel value="2" style={{paddingLeft: 0, paddingRight: 0, paddingTop: 16}}>
+            <CustomMetrics workspaceId={workspaceId}/>
           </TabPanel>
         </TabContext>
       </Box>
